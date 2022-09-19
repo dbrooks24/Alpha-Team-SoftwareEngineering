@@ -1,5 +1,6 @@
 # Alpha-Team-SoftwareEngineering
 ![teamalphalogo](https://user-images.githubusercontent.com/34782511/191133941-1f1a61ec-3aa8-43db-bca8-6e63eb1f3061.jpg)
+<img src="url" width="50%" height="50%">
 
 Repo for the Alpha Team at KSU - Software Engineering
 
