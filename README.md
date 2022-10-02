@@ -3,7 +3,7 @@
 
 Repo for the Alpha Team at KSU - Software Engineering
 
-# Project Idea:
+# CarGo Project Idea:
 A traffic game using a grid canvas, having realistic traffic patterns and controls
 
 
