@@ -39,7 +39,7 @@ class Car{
             } 
         }
         if(options.length === 0) return -1;
-        return options[Math.floor(Math.random() * options.length)]
+        return options[Math.floor(Math.random() * options.length)];
     }
 }
 //move a car from one coordinate one of its neighbors
@@ -59,5 +59,5 @@ function moveCar(map, i,j){
     }
 }
 function removeCar(map, i,j){
-    map[i][j] = undefined
+    map[i][j] = undefined;
 }

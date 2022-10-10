@@ -73,8 +73,8 @@ function mousePressed() {
   if (mouseButton === RIGHT) {
     if(!simulationHasStarted)
       removeRoad(grid[floor(mouseX / divisor)][floor(mouseY / divisor)]);
-    else
-      removeCar(carMap, floor(mouseX / divisor),floor(mouseY / divisor));
+    //remove car regardless in car whether simulation has started or not.
+    removeCar(carMap, floor(mouseX / divisor),floor(mouseY / divisor));
   }else if(mouseButton === LEFT && simulationHasStarted){
     let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
     //create new car if the coordinate is empty and the tile is a road tile
@@ -107,7 +107,7 @@ function mouseDragged() {
       assignDirection(prev, spot);
       //update the vehicles referenced coordinate when the directions of a coordinate changes
       if(carMap[prev.x][prev.y] != undefined)
-      carMap[prev.x][prev.y].setCoordinate(prev); 
+        carMap[prev.x][prev.y].setCoordinate(prev); 
       prev = spot;
     
     }
