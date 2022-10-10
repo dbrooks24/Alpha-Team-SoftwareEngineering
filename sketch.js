@@ -3,6 +3,8 @@ let cols;
 let rows;
 let grid;
 let prev = new coordinate(-1, -1, 'B');
+let vehicles;
+let simulationHasStarted = false;
 
 // setup the grid for traffic to take place
 function setup() {
@@ -14,16 +16,20 @@ function setup() {
   cols = floor(width / divisor);
   rows = floor(height / divisor);
   
+  //creating a 2-D vehicle registery
+  carMap = new Array(cols);
   // create 2-D array -- the grid
   grid = new Array(cols);
   for (let i = 0; i < cols; ++i) {
     grid[i] = new Array(rows);
+    carMap[i] = new Array(rows);
   }
-
   // register the grid points with coordinate class
+  // initialize the carmap indicies to undefined
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
       grid[i][j] = new coordinate(i, j, "B");
+      carMap[i][j] = undefined;
     }
   }
 }
@@ -37,6 +43,17 @@ function draw() {
     for (let j = 0; j < rows; ++j) {
       fill(175);                                  // color per tile
       if (grid[i][j].elem == "R") { fill(255); } 
+
+      //drawing cars 
+      if(carMap[i][j] != undefined){
+        fill(255, 0, 0);
+        if(carMap[i][j].isAtAnExit()){
+          removeCar(carMap, i,j);
+        }else if( simulationHasStarted){
+          moveCar(carMap, i,j);
+        }
+        
+      }
       stroke('lightgray');                      // border color of pixels
       strokeWeight(2);
       rect(i * divisor, j * divisor, divisor - 1, divisor - 1); // 20 x 20 squares
@@ -54,15 +71,27 @@ function mousePressed() {
   if (!isInsideCanvas()) { return; }
   prev = grid[floor(mouseX / divisor)][floor(mouseY / divisor)];
   if (mouseButton === RIGHT) {
-    removeRoad(grid[floor(mouseX / divisor)][floor(mouseY / divisor)]);
-  } 
+    if(!simulationHasStarted)
+      removeRoad(grid[floor(mouseX / divisor)][floor(mouseY / divisor)]);
+    else
+      removeCar(carMap, floor(mouseX / divisor),floor(mouseY / divisor));
+  }else if(mouseButton === LEFT && simulationHasStarted){
+    let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
+    //create new car if the coordinate is empty and the tile is a road tile
+    if(carMap[i][j] == undefined && grid[i][j].elem === 'R')
+      carMap[i][j] = new Car(grid[i][j]);
+  }
 }
-
+function keyReleased(){
+  if(keyCode === 32){ //spacebar
+    simulationHasStarted = !simulationHasStarted;
+  }
+}
 // change a 'B'-tile into a new road
 // to continue building the same road, click & hold on an existing road tile and drag
 // it horizontally and/or vertically to grow it
 function mouseDragged() {
-  if (!isInsideCanvas()) { return; }
+  if (!isInsideCanvas() || simulationHasStarted ) { return; }
   let spot = grid[floor(mouseX / divisor)][floor(mouseY / divisor)];
   if (mouseButton === LEFT) {
     
@@ -76,6 +105,9 @@ function mouseDragged() {
       
       // assign direction according to the newly added route
       assignDirection(prev, spot);
+      //update the vehicles referenced coordinate when the directions of a coordinate changes
+      if(carMap[prev.x][prev.y] != undefined)
+      carMap[prev.x][prev.y].setCoordinate(prev); 
       prev = spot;
     
     }
