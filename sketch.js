@@ -1,3 +1,5 @@
+var parentID = 'CanvasParent';
+var canvasParent = document.getElementById(parentID);
 let divisor = 20;
 let cols;
 let rows;
@@ -8,7 +10,8 @@ let simulationHasStarted = false;
 
 // setup the grid for traffic to take place
 function setup() {
-  const canvas = createCanvas(720, 400);    // width = 720; height = 400
+  const canvas = createCanvas(canvasParent.offsetWidth, canvasParent.offsetHeight);
+  canvas.parent(canvasParent);
   // disable right-click menu pop-up when right-clicking on canvas
   canvas.elt.addEventListener("contextmenu", (e) => e.preventDefault());
   
@@ -112,6 +115,10 @@ function mouseDragged() {
     
     }
   }
+}
+//called once the broswer window is resized
+function windowResized(){
+  resizeCanvas(canvasParent.offsetWidth, canvasParent.offsetHeight);
 }
 
 // do not take any inputs residing outside of the canvas
