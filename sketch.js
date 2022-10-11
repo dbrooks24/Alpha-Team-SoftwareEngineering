@@ -18,6 +18,7 @@ function setup() {
   // calculate number of columns and rows for grid
   cols = floor(width / divisor);
   rows = floor(height / divisor);
+  console.log(cols, rows);
   
   //creating a 2-D vehicle registery
   carMap = new Array(cols);
