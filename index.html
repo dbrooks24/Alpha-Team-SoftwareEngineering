@@ -13,31 +13,44 @@
   <script src="roadElement.js"></script>
   <script src="car.js"></script>
   <script src="kdTree.js"></script>
-  <title>Document</title>
+  <title>Car Simulator</title>
+  <style>
+  </style>
+
 </head>
 <body>
-  <div id="container" style="height:100vh;width:100%;" class="row px-0 g-0">
-    <div id="CanvasParent" class="p-0 mx-0 col-9"></div>
-    <div id="Instructions" style="background-color:aliceblue;"class="col-3 mx-0 p-2" >
-      <p class="h1 text-primary">Instructions</p>
-      <div class="px-1">
-        <p class="text-info">-To toggle between road construction and car instatiation click the spacebar</p>
-        <p class="text-info">-When in road construction mode</p>
-        <div class="px-4">
-          <p class="text-secondary">-Left click to create a single road tile</p>
-          <p class="text-secondary">-Drag the mouse while pressing down the right click to continuously build road tiles</p>
-          <p class="text-secondary">-Right click to remove an end road tile</p>
-          <p class="text-secondary">-Right click a car to remove it</p>
-        </div>
-        <p class="text-info">-When in car instantiation mode</p>
-        <div class="px-4">
-          <p class="text-secondary">-Left click to create a single car sprite</p>
-          <p class="text-secondary">-Right click a car to remove it</p>
-        </div>
+    <div id="header">
+      <div id="menuIcon" onclick="displayMenu();">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
       </div>
     </div>
-  </div>
+    <div id="continaer">
+      <div id="Instructions" class="">
+        <a href="javascript:void(0)" class="closebtn text-decoration-none" onclick="closeMenu();">&times;</a>
+        <p class="h1 text-primary">Instructions</p>
+        <ul class="text-info">
+          <li>To toggle between road construction and car instatiation click the spacebar</li>
+          <li>When in road construction mode</li>
+              <ul class="text-secondary">
+                <li>Left click to create a single road tile</li>
+                <li>Drag the mouse while pressing down the right click to continuously build road tiles</li>
+                <li>Right click to remove an end road tile</li>
+                <li>Right click a car to remove it</li>
+              </ul>
+          <li>When in car instantiation mode</li>
+              <ul class="text-secondary">
+                <li>Left click to create a single car sprite</li>
+                <li>Right click a car to remove it</li>
+              </ul>
+        </ul>
+      </div>
 
+
+     <div id="CanvasParent" class="p-0 mx-0"></div>
+    </div>
+  <script src="index.js"></script>
   <script src="sketch.js"></script>
 </body>
 </html>

@@ -1,7 +1,55 @@
+:root{
+  --headerHeight:50px;
+}
 html, body {
   margin: 0;
   padding: 0;
 }
 canvas {
   display: block;
+}
+#header{
+  height:var(--headerHeight);
+  padding: 10px;
+  background-color:lavender;
+}
+
+#menuIcon{
+  display:flex column;
+  flex-wrap:no-wrap;
+  width:fit-content;
+}
+#menuIcon:hover{
+cursor: pointer;
+}
+/* the menu bars within the menu Icon*/
+.bar{
+
+  width: 35px;
+  height: 3px;
+  background-color: black;
+  margin: 6px 0;
+}
+/* X button to close instructions menu*/
+ .closebtn {
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  color: black;
+} 
+#CanvasParent{
+  width:100%;
+  z-index:1;
+  height: calc(100vh - var(--headerHeight));
+}
+#Instructions{
+  position: absolute;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: width 0.75s;
+  z-index:2;
+  min-height: calc(100vh - var(--headerHeight));
+  width:0px;
+  background-color:aliceblue;
+  overflow-x: hidden;
 }
