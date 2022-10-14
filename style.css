@@ -23,26 +23,41 @@ canvas {
 cursor: pointer;
 }
 /* the menu bars within the menu Icon*/
-.bar{
-
-  width: 35px;
-  height: 3px;
-  background-color: black;
-  margin: 6px 0;
+.bar {
+  display: block;
+  width: 30%;
+  padding: 8px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: #E6E6FA;
+  color: #333333;
+  text-align: middle;
+  transition: 0.5s;
 }
-/* X button to close instructions menu*/
- .closebtn {
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-  color: black;
-} 
+
+.bar::after {
+  content: '\2630';
+  font-weight: bold;
+  display: inline-block;
+  transform: scale(2);
+}
+
+.closebtn::after {
+  content: '\2715';
+  font-weight: bold;
+  display: inline-block;
+  transform: scale(2);
+}
+
 #CanvasParent{
   width:100%;
   z-index:1;
   height: calc(100vh - var(--headerHeight));
 }
-#Instructions{
+
+/* the contents of the menu */
+#menu{
   position: absolute;
   white-space: nowrap;
   box-sizing: border-box;
@@ -52,4 +67,132 @@ cursor: pointer;
   width:0px;
   background-color:aliceblue;
   overflow-x: hidden;
+}
+
+.margin {
+  margin-left: 1.5%;
+}
+
+.option {
+  border-color:#86e1f3;
+  background: #57d8f1;
+  position: static;
+  left: 50%;
+  margin-top: 2%;
+  margin-left: 1.8%;
+  display: inline-block;
+  width: 100px;
+  height: 25px;
+  text-align: center;
+}
+
+.option:hover {
+  border-color: #4cdaf7;
+  background: #24d4f7;
+}
+
+.resetBtn {
+  border-color: #f38ba2;
+  background: #f17e97;
+  position: absolute;
+  right: 0.2%;
+  top: 0.2%;
+  width: 150px;
+  padding: 8px;
+  cursor: pointer;
+  color: #333333;
+  text-align: middle;
+}
+
+.resetBtn:hover {
+  border-color: #f57994;
+  background: #f3587a;
+}
+
+/* the toggle indicator for the two modes */
+.switch {
+  position: relative;
+  display: flex;
+  margin: 0 auto;
+  bottom: 42px;
+  width: 80px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0; width: 0; height: 0;
+}
+
+.slider {
+  background: #ccc;
+  position: absolute;
+  cursor: pointer;
+  /*top: 0.2%;*/
+  top: 0; left: 0; right: 0; bottom: 0;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  background-color: white;
+  position: absolute;
+  content: "";
+  height: 28px;
+  width: 36px;
+  left: 4px;
+  bottom: 3px;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #1fd637;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(36px);
+  -ms-transform: translateX(36px);
+  transform: translateX(36px);
+}
+
+label::before {
+  content: "Road Editting";
+  margin-left: -70px;
+  line-height: 16px;
+}
+
+label::after {
+  content: "Begin Simulation";
+  margin-left: 110px;
+  line-height: 16px;
+}
+
+div.sliderWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+/* Enables messages to pop up and fade away; .err (error); .note (normal msg) */
+.err { color: #d84187; }
+.note { color: #329b2e; }
+
+.msg {
+  left: 65px;
+  top: 15px;
+  opacity: 0;
+  transition: 1s;
+  float: left;
+  position: absolute;
+}
+
+.msg.fade-in {
+  opacity: 1;
+  transition: 1s;
+}
+
+.msg.hide {
+  display: none;
+  user-select: none;
 }

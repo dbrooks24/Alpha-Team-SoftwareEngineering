@@ -27,10 +27,6 @@ class coordinate {
   }
 }
 
-// We could implement the car class to inherit its tile's coordinate class.
-// This way, the cars can operate on top of the roads without breaking road's properties
-// class car {}
-
 // compare x and y values of both tiles
 function areEqual(first, second) {
   if ((first.x === second.x) && (first.y === second.y)) { return true;  }

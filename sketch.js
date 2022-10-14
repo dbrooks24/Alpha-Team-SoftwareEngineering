@@ -6,7 +6,7 @@ let rows;
 let grid;
 let prev = new coordinate(-1, -1, 'B');
 let vehicles;
-let simulationHasStarted = false;
+let simulationHasStarted = false, menuOpen = false ; // menuOpen is to prevent the user from interacting with the grid when menu is open
 
 // setup the grid for traffic to take place
 function setup() {
@@ -36,12 +36,13 @@ function setup() {
       carMap[i][j] = undefined;
     }
   }
+  frameRate(24);  // 24 draw() calls per second; default is 60 per second
 }
 
 // (0,0) is top left of the grid; this function is continuously called
 function draw() {
   background(255);
-  
+
   // color the grid accordingly
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
@@ -72,30 +73,63 @@ function draw() {
 // record initial 'R'-tile, then go straight to mouseDragged()
 // if it's a right-click, delete a non-intermediate road if possible
 function mousePressed() {
-  if (!isInsideCanvas()) { return; }
+  if (!isInsideCanvas() || menuOpen) { return; }
   prev = grid[floor(mouseX / divisor)][floor(mouseY / divisor)];
   if (mouseButton === RIGHT) {
     if(!simulationHasStarted)
       removeRoad(grid[floor(mouseX / divisor)][floor(mouseY / divisor)]);
     //remove car regardless in car whether simulation has started or not.
     removeCar(carMap, floor(mouseX / divisor),floor(mouseY / divisor));
-  }else if(mouseButton === LEFT && simulationHasStarted){
+  } else if(mouseButton === LEFT && simulationHasStarted){
     let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
     //create new car if the coordinate is empty and the tile is a road tile
     if(carMap[i][j] == undefined && grid[i][j].elem === 'R')
       carMap[i][j] = new Car(grid[i][j]);
   }
 }
-function keyReleased(){
-  if(keyCode === 32){ //spacebar
-    simulationHasStarted = !simulationHasStarted;
+
+function keyReleased(fromUI = false){
+  if(((keyCode === 32) && (!menuOpen)) || (fromUI) && (!menuOpen)){ //spacebar or by toggling from UI
+    // check if a legal road exists; that is, a road -- with no direction -- that ends at an edge for cars to despawn)
+    for (let i = 0; i < cols; ++i) {
+      for (let j = 0; j < rows; ++j) {
+
+        // (1) if you consider a single road tile at an edge to be good enough for car instantiation, or
+        /*
+        if ((grid[i][j].elem === 'R') && isEdge(grid[i][j]) && ((Object.keys(Object.entries(grid[i][j].direction).filter(([_, value]) => value === true))).length === 0)) {
+          simulationHasStarted = !simulationHasStarted;
+          toggleMode(simulationHasStarted);
+          return;                                               // only need 1 confirmed legal road
+        }
+        */
+
+        // (2) if you only consider a road that goes from A to B (where B is at the edge), even if it's just two tiles, for car instantiation 
+        if ((grid[i][j].elem === 'R') && isEdge(grid[i][j]) && ((Object.keys(Object.entries(grid[i][j].direction).filter(([_, value]) => value === true))).length === 0)) {
+
+          // if at least one tile is going into this tile at the edge, car instantiation can be done
+          for (let k = 0; k < 4; ++k) {
+            let nearby = grid[i][j].seeNeighbor(Object.keys(grid[i][j].direction)[k]);
+            if (nearby.direction[Object.keys(nearby.direction)[getOpposite(k)]] === true) {
+
+              // enable/disable car instantiation and turn the toggle on [left->right] on the UI
+              simulationHasStarted = !simulationHasStarted;
+              toggleMode(simulationHasStarted);
+              return; // only need 1 confirmed legal road
+            }
+          }
+        }
+      }
+    }
   }
+  // pop-up error message to tell user that a complete road is required to do car instantiation
+  if (!menuOpen) { showMsg("err0"); }
 }
+
 // change a 'B'-tile into a new road
 // to continue building the same road, click & hold on an existing road tile and drag
 // it horizontally and/or vertically to grow it
 function mouseDragged() {
-  if (!isInsideCanvas() || simulationHasStarted ) { return; }
+  if (!isInsideCanvas() || simulationHasStarted || menuOpen) { return; }
   let spot = grid[floor(mouseX / divisor)][floor(mouseY / divisor)];
   if (mouseButton === LEFT) {
     
@@ -113,7 +147,6 @@ function mouseDragged() {
       if(carMap[prev.x][prev.y] != undefined)
         carMap[prev.x][prev.y].setCoordinate(prev); 
       prev = spot;
-    
     }
   }
 }
@@ -132,8 +165,31 @@ function isInsideCanvas() {
   }
 }
 
+// Upon clicking the button, "Reset Simulation," return grid to initial state & remove cars
+// maybe add a comfirmation message later
+function resetGrid() {
+  showMsg("reset");
+  // reset toggle and remove cars
+  simulationHasStarted = false;
+  toggleMode(false, true);
+  for (let i = 0; i < cols; ++i) {
+    for (let j = 0; j < rows; ++j) {
+      removeCar(carMap, i, j);
+
+      // delete roads
+      if (grid[i][j].elem === 'R') {
+        grid[i][j].elem = 'B';
+        grid[i][j].neighbors = [];
+        for (let k = 0; k < 4; ++k) {
+          grid[i][j].direction[Object.keys(grid[i][j].direction)[k]] = false;
+        }
+      }
+    }
+  }
+}
+
 // will be replaced with road sprites
-// atm, blue points signifies which tiles the a tile can go into
+// atm, blue points signifies which tiles a tile can go into
 function addPoints(spot) {
   p0 = spot.x * divisor;
   p1 = spot.y * divisor;
