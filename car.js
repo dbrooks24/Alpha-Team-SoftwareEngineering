@@ -5,7 +5,6 @@ class Car{
         //this.image = image
         this.coordinate = startingCoordinate;
         this.dir = this.getrandomDirection();
-        console.log(this.dir);
         if(speed < Car.minSpeed) speed = Car.minSpeed;
         if(speed > Car.maxSpeed) speed = Car.maxSpeed;
         this.speed = speed; 
@@ -32,7 +31,6 @@ class Car{
     //chose a random direction if at an intersection
     getrandomDirection(){
         let options = [];
-       // console.log('dir', this.coordinate.direction)
         for(const [dir, value] of Object.entries(this.coordinate.direction)){
             if(value === true){
                 options.push(dir);
@@ -52,7 +50,7 @@ function moveCar(grid, map, i,j){
             return;
         }
         car.setCoordinate(nextCoordinate);
-        map[nextCoordinate.x][nextCoordinate.y] = map[i][j]; //moving vehicle to its neighboring road
+        map[nextCoordinate.x][nextCoordinate.y] = map[i][j]; //moving vehicle to its neighboring tile
         removeCar(map, i,j);
         car.updateInterval();
     }

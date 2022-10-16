@@ -17,7 +17,6 @@ function setup() {
   // calculate number of columns and rows for grid
   cols = floor(width / divisor);
   rows = floor(height / divisor);
-  console.log(cols, rows);
   
   //creating a 2-D vehicle registery
   carMap = new Array(cols);
@@ -144,7 +143,6 @@ function mouseDragged() {
       if(spot.elem ===  'B') spot.elem = 'R';
       spot.neighbors = getNeighbors(spot);
     } else if (!areEqual(prev, spot) && (prev.neighbors.findIndex(i => i.x === spot.x && i.y === spot.y) != -1)) {
-      console.log(spot.elem);
       spot.elem = 'R';
       spot.neighbors = getNeighbors(spot);
       
