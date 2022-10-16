@@ -7,7 +7,6 @@ let grid;
 let prev = new coordinate(-1, -1, 'B');
 let vehicles;
 let simulationHasStarted = false, menuOpen = false ; // menuOpen is to prevent the user from interacting with the grid when menu is open
-
 // setup the grid for traffic to take place
 function setup() {
   const canvas = createCanvas(canvasParent.offsetWidth, canvasParent.offsetHeight);
@@ -42,26 +41,33 @@ function setup() {
 // (0,0) is top left of the grid; this function is continuously called
 function draw() {
   background(255);
-
+  
   // color the grid accordingly
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
       fill(175);                                  // color per tile
-      if (grid[i][j].elem == "R") { fill(255); } 
+      if (grid[i][j].elem == "R" || grid[i][j].elem =="T") { fill(255); } 
 
       //drawing cars 
       if(carMap[i][j] != undefined){
-        fill(255, 0, 0);
+        fill(0, 0, 200);
         if(carMap[i][j].isAtAnExit()){
           removeCar(carMap, i,j);
         }else if( simulationHasStarted){
-          moveCar(carMap, i,j);
+          if(millis() > carMap[i][j].moveInterval)
+              moveCar(grid, carMap, i,j);
         }
-        
       }
       stroke('lightgray');                      // border color of pixels
       strokeWeight(2);
       rect(i * divisor, j * divisor, divisor - 1, divisor - 1); // 20 x 20 squares
+      if(grid[i][j].elem === 'T') { 
+        if(millis() > grid[i][j].trafficFlowInterval){
+          grid[i][j].changeCurrentInput();
+          grid[i][j].updateInterval();
+        }
+        drawTrafficLight(grid[i][j])
+      }
       
       // will be replaced with a function that places the appropriate sprites
       // atm, it places blue points on roads to show the direction of traffic
@@ -83,11 +89,11 @@ function mousePressed() {
   } else if(mouseButton === LEFT && simulationHasStarted){
     let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
     //create new car if the coordinate is empty and the tile is a road tile
-    if(carMap[i][j] == undefined && grid[i][j].elem === 'R')
+    if(carMap[i][j] == undefined && grid[i][j].elem === 'R'){
       carMap[i][j] = new Car(grid[i][j]);
+    }
   }
 }
-
 function keyReleased(fromUI = false){
   if(((keyCode === 32) && (!menuOpen)) || (fromUI) && (!menuOpen)){ //spacebar or by toggling from UI
     // check if a legal road exists; that is, a road -- with no direction -- that ends at an edge for cars to despawn)
@@ -134,15 +140,27 @@ function mouseDragged() {
   if (mouseButton === LEFT) {
     
     // create a new road if a 'B'-tile is clicked; otherwise, grow an existing road
-    if ((spot.elem != 'R') && (areEqual(prev, spot))) {
-      spot.elem = 'R';
+    if ((spot.elem != 'R' && spot.elem != 'T') && (areEqual(prev, spot))) {
+      if(spot.elem ===  'B') spot.elem = 'R';
       spot.neighbors = getNeighbors(spot);
     } else if (!areEqual(prev, spot) && (prev.neighbors.findIndex(i => i.x === spot.x && i.y === spot.y) != -1)) {
+      console.log(spot.elem);
       spot.elem = 'R';
       spot.neighbors = getNeighbors(spot);
       
       // assign direction according to the newly added route
       assignDirection(prev, spot);
+
+      //change the element type from R to T if the road has become a intersection
+      if(spot.elem === 'T'){
+        if(!IsIntersection(spot)){
+          spot.elem = 'R'
+          spot.removeTrafficLightProperties();
+        }
+      }else if(IsIntersection(spot)){
+        spot.elem = 'T';
+        spot.addTrafficLightProperties();
+      }
       //update the vehicles referenced coordinate when the directions of a coordinate changes
       if(carMap[prev.x][prev.y] != undefined)
         carMap[prev.x][prev.y].setCoordinate(prev); 
@@ -154,7 +172,6 @@ function mouseDragged() {
 function windowResized(){
   resizeCanvas(canvasParent.offsetWidth, canvasParent.offsetHeight);
 }
-
 // do not take any inputs residing outside of the canvas
 function isInsideCanvas() {
   let x = mouseX, y = mouseY;
@@ -177,7 +194,7 @@ function resetGrid() {
       removeCar(carMap, i, j);
 
       // delete roads
-      if (grid[i][j].elem === 'R') {
+      if (grid[i][j].elem === 'R' || grid[i][j].elem === 'T') {
         grid[i][j].elem = 'B';
         grid[i][j].neighbors = [];
         for (let k = 0; k < 4; ++k) {
@@ -206,3 +223,43 @@ function addPoints(spot) {
   if (down) { point(p0 + 10, p1 + 17); }
   strokeWeight(0);
 }
+function drawTrafficLight(point){
+  if(point.elem !== 'T') return;
+  let drawUp    = point => triangle(point.x * divisor, point.y * divisor, point.x * divisor  + 10, point.y * divisor  + 10, point.x * divisor +20, point.y * divisor );
+  let drawLeft  = point => triangle(point.x * divisor, point.y* divisor , point.x * divisor + 10, point.y * divisor  + 10, point.x * divisor, point.y * divisor + 20);
+  let drawRight = point => triangle(point.x * divisor + 20, point.y * divisor, point.x * divisor + 10, point.y * divisor + 10, point.x * divisor +20, point.y * divisor + 20);
+  let drawDown  = point => triangle(point.x * divisor, point.y * divisor + 20, point.x * divisor  + 10, point.y * divisor + 10, point.x * divisor +20, point.y * divisor + 20);
+  if(point.trafficInputDirections.up){ 
+    if(point.currentInput == 'up'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
+    drawUp(point);
+  }
+  if(point.trafficInputDirections.left)  {
+    if(point.currentInput == 'left'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
+    drawLeft(point);
+  }
+  if(point.trafficInputDirections.right) {
+    if(point.currentInput == 'right'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
+    drawRight(point);
+  }
+  if(point.trafficInputDirections.down)  {
+    if(point.currentInput == 'down'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
+    drawDown(point);
+  }
+
+}
+//a intersection is any point with traffic coming in from more than one direction
+function IsIntersection(point){
+  let pointInputFlow = trafficInput(point);
+  let hasATrafficInput = false;
+  let result = false;
+  for(let dir in pointInputFlow){
+    if(pointInputFlow[dir] && hasATrafficInput){
+      result = true;
+      break;
+    }
+    if(pointInputFlow[dir]) {hasATrafficInput = true;}
+    
+  }
+  return result;
+}
+
