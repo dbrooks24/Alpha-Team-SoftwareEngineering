@@ -23,7 +23,6 @@ class Car{
     }
     setCoordinate(coordinate){
         this.coordinate = coordinate;
-        this.dir = this.getrandomDirection();
     }
     updateInterval(){
         this.moveInterval = millis() + 1000 / this.speed; 
@@ -44,15 +43,18 @@ class Car{
 function moveCar(grid, map, i,j){
     let car = map[i][j];//car is a reference
     let nextCoordinate =car.coordinate.seeNeighbor(car.dir);
+    console.log(car.dir);
     //only move a car when the next tile is free and the neighbor is not an outlier 
     if(nextCoordinate != -1 && nextCoordinate.elem != 'B' && map[nextCoordinate.x][nextCoordinate.y] == undefined){
         if(grid[nextCoordinate.x][nextCoordinate.y].elem === 'T' && grid[nextCoordinate.x][nextCoordinate.y].currentInput != getOppositeDirection(car.dir)){
+            
             return;
         }
         car.setCoordinate(nextCoordinate);
         map[nextCoordinate.x][nextCoordinate.y] = map[i][j]; //moving vehicle to its neighboring tile
         removeCar(map, i,j);
         car.updateInterval();
+        car.dir = car.getrandomDirection();
     }
 }
 function removeCar(map, i,j){
