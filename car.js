@@ -1,10 +1,12 @@
 class Car{
     static maxSpeed = 10; //speed is represented by tiles per second.
     static minSpeed = 4;
-    constructor(startingCoordinate, speed=Car.minSpeed){
+    constructor(startingCoordinate, speed= undefined){
         //this.image = image
         this.coordinate = startingCoordinate;
         this.dir = this.getrandomDirection();
+        if(speed === undefined) speed = Math.floor(Math.random() * (Car.maxSpeed - Car.minSpeed) + Car.minSpeed);
+        console.log(speed);
         if(speed < Car.minSpeed) speed = Car.minSpeed;
         if(speed > Car.maxSpeed) speed = Car.maxSpeed;
         this.speed = speed; 
@@ -42,6 +44,7 @@ class Car{
 //move a car from one coordinate one of its neighbors
 function moveCar(grid, map, i,j){
     let car = map[i][j];//car is a reference
+    if(car.dir === -1) car.dir = car.getrandomDirection();
     let nextCoordinate =car.coordinate.seeNeighbor(car.dir);
     //only move a car when the next tile is free and the neighbor is not an outlier 
     if(nextCoordinate != -1 && nextCoordinate.elem != 'B' && map[nextCoordinate.x][nextCoordinate.y] == undefined){
