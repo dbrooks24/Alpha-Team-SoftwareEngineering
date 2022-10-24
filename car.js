@@ -51,6 +51,8 @@ function moveCar(grid, map, i,j){
         if(grid[nextCoordinate.x][nextCoordinate.y].elem === 'T' && grid[nextCoordinate.x][nextCoordinate.y].currentInput != getOppositeDirection(car.dir)){
             return;
         }
+
+        colorGrid(nextCoordinate, color(0, 0, 200));         // color the next position of the car
         car.setCoordinate(nextCoordinate);
         map[nextCoordinate.x][nextCoordinate.y] = map[i][j]; //moving vehicle to its neighboring tile
         removeCar(map, i,j);
@@ -58,6 +60,12 @@ function moveCar(grid, map, i,j){
         car.dir = car.getrandomDirection();
     }
 }
+
+// remove car and redraw the road tile
 function removeCar(map, i,j){
+    if (map[i][j] === undefined) { return; }
     map[i][j] = undefined;
+    //colorGrid(grid[i][j], color(255));
+    image(roadImg, i * divisor + 1, j * divisor + 1);
+    addPoints(grid[i][j]);
 }
