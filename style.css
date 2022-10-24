@@ -65,8 +65,11 @@ cursor: pointer;
   z-index:2;
   min-height: calc(100vh - var(--headerHeight));
   width:0px;
-  background-color:aliceblue;
   overflow-x: hidden;
+}
+
+.transparent {
+  background-color: rgb(240, 248, 255, 0.9);
 }
 
 .margin {

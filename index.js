@@ -37,7 +37,6 @@ let op2 = [     // About section (empty atm)
 const btn = document.getElementById("menuIcon");
 btn.addEventListener("click", () => {
     menuOpen = btn.classList.toggle("closebtn");
-    console.log(menuOpen);
     if (menuOpen) {
         menu.style.width="700px";
     } else {
@@ -57,6 +56,15 @@ function showText(name) {
     }
 }
 
+// enable toggling between modes by clicking the toggle button
+// left click on toggle button or click the spacebar
+document.querySelector(".switch").addEventListener("mousedown", (e) => {
+    if (e.button === 0) { changeMode(); }
+})
+window.addEventListener("keydown", (e) => {
+    if (e.key === " ") { changeMode(); }
+})
+
 // toggle between "Road Editting" and "Begin Simulation"
 function toggleMode(isValid, isReset = false) {
     let initial = document.getElementById("toggle1");
@@ -68,7 +76,13 @@ function toggleMode(isValid, isReset = false) {
 }
 
 // Given a message Id, fade-in and out the error message
+let locked = false;   // prevents spamming of notifications
 function showMsg(msgId) {
+    if (locked) { return; }
+    locked = true;
+    setTimeout(function() {
+        locked = false;         // current notification's time is done
+    }, 4000);
     let message = document.getElementById(msgId);
     message.classList.remove("hide");
     setTimeout(function() {

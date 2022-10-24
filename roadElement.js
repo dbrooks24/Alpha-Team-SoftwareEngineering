@@ -7,6 +7,7 @@ class coordinate {
     this.neighbors = [];
     // at least one must be false (cars can't go backwards on roads here)
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
+    this.updated = true;
   }
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(){
@@ -106,6 +107,7 @@ function assignDirection(initial, current) {
     if ((initial.direction[Object.keys(initial.direction)[index]] != true) &&
         (current.direction[Object.keys(current.direction)[opposite]] != true)) {
       initial.direction[Object.keys(initial.direction)[index]] = true;
+      initial.updated = false;
     } else {
       initial.direction[Object.keys(initial.direction)[index]] = false;
     }
@@ -113,9 +115,9 @@ function assignDirection(initial, current) {
 }
 
 // remove a road by simply right-clicking it (can't drag & delete multiple roads)
-function removeRoad(point) {
-  if (point.elem != 'R') { return; }
-  for (let i = 0; i < 4; ++i) {            // if intermediate road, don't delete
+function removeRoad(point, reset = false) {
+  if (((point.elem != 'R') && (point.elem != 'T')) || (carMap[point.x][point.y] != undefined)) { return; }
+  for (let i = 0; (i < 4) && (reset === false); ++i) {            // if intermediate road, don't delete
     if (point.direction[Object.keys(point.direction)[i]] === true) {
       return;
     }
@@ -126,10 +128,13 @@ function removeRoad(point) {
     let nearby = point.seeNeighbor(Object.keys(point.direction)[i]);
     if (nearby.direction[Object.keys(nearby.direction)[getOpposite(i)]] === true) {
       nearby.direction[Object.keys(nearby.direction)[getOpposite(i)]] = false;
+      nearby.updated = false;
     }
   }
   point.elem = 'B';
   point.neighbors = [];
+  //colorGrid(point, color(175));
+  image(grassImg1, point.x * divisor + 1, point.y * divisor + 1);
 }
 
 //               [0 -> Up] 
