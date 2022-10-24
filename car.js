@@ -1,10 +1,12 @@
 class Car{
     static maxSpeed = 10; //speed is represented by tiles per second.
     static minSpeed = 4;
-    constructor(startingCoordinate, speed=1){
+    constructor(startingCoordinate, speed= undefined){
         //this.image = image
         this.coordinate = startingCoordinate;
         this.dir = this.getrandomDirection();
+        if(speed === undefined) speed = Math.floor(Math.random() * (Car.maxSpeed - Car.minSpeed) + Car.minSpeed);
+        console.log(speed);
         if(speed < Car.minSpeed) speed = Car.minSpeed;
         if(speed > Car.maxSpeed) speed = Car.maxSpeed;
         this.speed = speed; 
@@ -20,11 +22,9 @@ class Car{
             }
         }
         return noValidDirection && isEdge(this.coordinate);
-        //return isEdge(this.coordinate) && this.coordinate.seeNeighbor(this.dir).elem == 'B'; to be added later
     }
     setCoordinate(coordinate){
         this.coordinate = coordinate;
-        this.dir = this.getrandomDirection();
     }
     updateInterval(){
         this.moveInterval = millis() + 1000 / this.speed; 
@@ -32,7 +32,6 @@ class Car{
     //chose a random direction if at an intersection
     getrandomDirection(){
         let options = [];
-       // console.log('dir', this.coordinate.direction)
         for(const [dir, value] of Object.entries(this.coordinate.direction)){
             if(value === true){
                 options.push(dir);
@@ -43,19 +42,20 @@ class Car{
     }
 }
 //move a car from one coordinate one of its neighbors
-function moveCar(map, i,j){
-    if(map[i][j]  != undefined){
-        let car = map[i][j]
-        if(millis() > car.moveInterval ){
-            let nextCoordinate =car.coordinate.seeNeighbor(car.dir);
-            //only move a car when the next tile is free and the neighbor is not an outlier
-            if(nextCoordinate != -1 && nextCoordinate.elem != 'B' && map[nextCoordinate.x][nextCoordinate.y] == undefined){
-                car.setCoordinate(nextCoordinate);
-                map[nextCoordinate.x][nextCoordinate.y] = map[i][j]; //moving vehicle to its neighboring road
-                removeCar(map, i,j);
-                car.updateInterval();
-            }
+function moveCar(grid, map, i,j){
+    let car = map[i][j];//car is a reference
+    if(car.dir === -1) car.dir = car.getrandomDirection();
+    let nextCoordinate =car.coordinate.seeNeighbor(car.dir);
+    //only move a car when the next tile is free and the neighbor is not an outlier 
+    if(nextCoordinate != -1 && nextCoordinate.elem != 'B' && map[nextCoordinate.x][nextCoordinate.y] == undefined){
+        if(grid[nextCoordinate.x][nextCoordinate.y].elem === 'T' && grid[nextCoordinate.x][nextCoordinate.y].currentInput != getOppositeDirection(car.dir)){
+            return;
         }
+        car.setCoordinate(nextCoordinate);
+        map[nextCoordinate.x][nextCoordinate.y] = map[i][j]; //moving vehicle to its neighboring tile
+        removeCar(map, i,j);
+        car.updateInterval();
+        car.dir = car.getrandomDirection();
     }
 }
 function removeCar(map, i,j){

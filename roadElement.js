@@ -5,11 +5,41 @@ class coordinate {
     this.y = y;
     this.elem = element;
     this.neighbors = [];
-    
     // at least one must be false (cars can't go backwards on roads here)
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
   }
-  
+  //properties to be added only to traffic light coordinates
+  addTrafficLightProperties(){
+    if(this.elem !== 'T') return;
+    this.trafficInputDirections = trafficInput(this);
+    this.trafficFlowInterval    = 0;
+    this.currentInput = undefined;
+    this.updateInterval = () => this.trafficFlowInterval = millis() + 3000;
+    this.changeCurrentInput = () => {
+      //find the next input direction in a clockwise manner
+      let nextDirection = ['up', 'right', 'down', 'left'];
+      let prevInput = this.currentInput;
+      let start = nextDirection.findIndex(i => i == this.currentInput);
+      let i = (start + 1) % nextDirection.length
+      while(i != start){
+        if(this.trafficInputDirections[nextDirection[i]]){
+          this.currentInput = nextDirection[i];
+          return;
+        }
+        ++i;
+        if(i == nextDirection.length) i = 0;
+      }
+    }
+    this.currentInput =  this.changeCurrentInput();
+  }
+  removeTrafficLightProperties(){
+    if(this.elem !== 'T') return;
+    this.trafficInputDirections = undefined;
+    this.trafficFlowInterval    = undefined;
+    this.currentInput           = undefined;
+    this.updateInterval         = undefined;
+    this.changeCurrentInput     = undefined;
+  }
   // fetch a single neighbor in the given direction (given as 'way')
   seeNeighbor(way) {
     switch (way) {
@@ -26,10 +56,6 @@ class coordinate {
     }
   }
 }
-
-// We could implement the car class to inherit its tile's coordinate class.
-// This way, the cars can operate on top of the roads without breaking road's properties
-// class car {}
 
 // compare x and y values of both tiles
 function areEqual(first, second) {
@@ -117,4 +143,37 @@ function getOpposite(index) {
   else if (index === 1)   { opposite = 2; }
   else                    { opposite = 1; }
   return opposite;
+}
+function getOppositeDirection(dir) {
+  switch (dir){
+    case'up': 
+      return 'down';
+    case 'down': 
+      return 'up';
+    case 'left': 
+      return 'right';
+    case 'right':
+      return 'left';
+  }
+}
+//return the list of neighbors whose traffic traffic output leads to this point
+function trafficInput(point){
+    let result = {'up': false, 'left': false, 'right': false, 'down': false};
+    // check above
+    if (point.y != 0) { 
+      if(grid[point.x][point.y - 1].direction.down){result.up = true;}
+    }
+    // check left
+    if (point.x != 0) {
+       if(grid[point.x - 1][point.y].direction.right){result.left = true;}
+    }
+    // check right
+    if (point.x != (cols - 1)) { 
+      if(grid[point.x + 1][point.y].direction.left){result.right = true;}
+    }
+    // check down
+    if (point.y != (rows - 1)) { 
+      if(grid[point.x][point.y + 1].direction.up){result.down = true;}
+    }
+    return result;
 }
