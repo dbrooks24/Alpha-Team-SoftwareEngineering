@@ -8,7 +8,7 @@ let opList = [  // list of current options
 ].join("<br/>");
 
 let op1 = [     // Instructions section
-    `<p class="h1 text-primary margin">Instructions</p>
+    `<div class="container"><p class="h1 text-primary margin">Instructions</p>
     <ul class="text-info margin">
         <li>Press either the <b>spacebar</b> or the <b>toggle</b> to switch between <b>Road Editting</b> and<br><b>Begin Simulation</b> modes.</li>
         <li>Click <b>Reset Simulation</b> to clear the entire board. </li>
@@ -25,7 +25,7 @@ let op1 = [     // Instructions section
                 <li><b>Left-click</b> a road tile with connectivity to create a single car entity.</li>
                 <li>(Future) <b>Right-click</b> to toggle traffic lights.</li>
             </ul>
-    </ul>`
+    </ul></div>`
 ].join("<br/>");
 
 let op2 = [     // About section (empty atm)
@@ -34,11 +34,13 @@ let op2 = [     // About section (empty atm)
 ];
 
 // opens and closes menu
+// TOOD: refactor to css 
 const btn = document.getElementById("menuIcon");
 btn.addEventListener("click", () => {
     menuOpen = btn.classList.toggle("closebtn");
     if (menuOpen) {
-        menu.style.width="700px";
+        menu.style.width = "110px";
+        menu.classList.add('open');
     } else {
         setTimeout(function() { menu.style.width="0px"; }, "100")
     }
