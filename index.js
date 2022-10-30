@@ -44,7 +44,7 @@ btn.addEventListener("click", () => {
 });
 
 // Shows modal content depending on option selected
-function showText(name) {
+function showModal(name) {
     switch (name) {
         case "Instructions":
             modalTitle.innerText = name;
