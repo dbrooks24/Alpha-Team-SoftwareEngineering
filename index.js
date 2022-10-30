@@ -1,14 +1,13 @@
 var menu = document.getElementById("menu");
 var canvas = document.getElementById("CanvasParent");
 var header = document.getElementById("header");
+const modal = document.getElementById("info-modal"); // Used for Instructions and About display
+const modalBody = document.querySelector(".modal-body");
+const modalCloseBtn = document.querySelector(".btn-close");
+const modalTitle = document.getElementById("info-modal-label");
 
-let opList = [  // list of current options
-    `<button id = 'Instructions' class = 'option' onclick = 'showText("Instructions")'>Instructions</button>
-    <button id = 'About' class = 'option' onclick = 'showText("About")'>About</button>`
-].join("<br/>");
-
-let op1 = [     // Instructions section
-    `<p class="h1 text-primary margin">Instructions</p>
+const instructionsHtml = [     // Instructions section
+    `<div class="container">
     <ul class="text-info margin">
         <li>Press either the <b>spacebar</b> or the <b>toggle</b> to switch between <b>Road Editting</b> and<br><b>Begin Simulation</b> modes.</li>
         <li>Click <b>Reset Simulation</b> to clear the entire board. </li>
@@ -25,33 +24,35 @@ let op1 = [     // Instructions section
                 <li><b>Left-click</b> a road tile with connectivity to create a single car entity.</li>
                 <li>(Future) <b>Right-click</b> to toggle traffic lights.</li>
             </ul>
-    </ul>`
+    </ul></div>`
 ].join("<br/>");
 
-let op2 = [     // About section (empty atm)
-    `<p class="h1 text-primary margin">About</p>
-    `
-];
+const aboutHtml = '<div class="container"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
+ 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit ' + 
+ 'esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>'
 
 // opens and closes menu
 const btn = document.getElementById("menuIcon");
 btn.addEventListener("click", () => {
     menuOpen = btn.classList.toggle("closebtn");
     if (menuOpen) {
-        menu.style.width="700px";
+        menu.style.width = "110px";
+        menu.classList.add('open');
     } else {
         setTimeout(function() { menu.style.width="0px"; }, "100")
     }
 });
 
-// Shows text in menu depending on option selected
-function showText(name) {
+// Shows modal content depending on option selected
+function showModal(name) {
     switch (name) {
         case "Instructions":
-            menu.innerHTML = opList + op1;
+            modalTitle.innerText = name;
+            modalBody.innerHTML = instructionsHtml;
             return;
         case "About":
-            menu.innerHTML = opList + op2;
+            modalTitle.innerText = name;
+            modalBody.innerHTML = aboutHtml
             return;
     }
 }
