@@ -9,9 +9,10 @@ const modalTitle = document.getElementById("info-modal-label");
 const instructionsHtml = [     // Instructions section
     `<div class="container">
     <ul class="text-info margin">
-        <li>Press either the <b>spacebar</b> or the <b>toggle</b> to switch between <b>Road Editting</b> and<br><b>Begin Simulation</b> modes.</li>
+        <li>Press either the <b>spacebar</b> or the <b>toggle</b> to switch between <b>Road Editing</b> and<br><b>Begin Simulation</b> modes.</li>
         <li>Click <b>Reset Simulation</b> to clear the entire board. </li>
-        <li>When in <b>Road Editting</b> mode:</li>
+        <li>Hold <b>tab</b> to display road connectivity. </li>
+        <li>When in <b>Road Editing</b> mode:</li>
             <ul class="text-secondary">
                 <li><b>Left-click</b> to create a new road tile.</li>
                 <li>To continue building that road, <b>left-click</b> and <b>hold</b> the existing road tile and <b>drag</b><br> the mouse.</li>
@@ -63,7 +64,8 @@ document.querySelector(".switch").addEventListener("mousedown", (e) => {
     if (e.button === 0) { changeMode(); }
 })
 window.addEventListener("keydown", (e) => {
-    if (e.key === " ") { changeMode(); }
+    if      (e.key === " ")     { changeMode();       }
+    else if (e.key === "Tab")   { e.preventDefault(); }     // disable original TAB-key functionality for screen dimming
 })
 
 // toggle between "Road Editting" and "Begin Simulation"
