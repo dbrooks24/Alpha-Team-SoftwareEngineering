@@ -123,18 +123,23 @@ function removeRoad(point, reset = false) {
     }
   } 
 
-  // for any road that goes into this tile, make their respective direction flag false
+  // for any road that goes into this tile, make their respective direction flag false and clear arrow residue
+  colorGrid(point, 0, true);
   for (let i = 0; i < 4; ++i) {
     let nearby = point.seeNeighbor(Object.keys(point.direction)[i]);
     if (nearby.direction[Object.keys(nearby.direction)[getOpposite(i)]] === true) {
       nearby.direction[Object.keys(nearby.direction)[getOpposite(i)]] = false;
       nearby.updated = false;
+      colorGrid(nearby, 0, true);
     }
   }
   point.elem = 'B';
   point.neighbors = [];
-  //colorGrid(point, color(175));
+
+  // darken grass sprites when tabbed
+  if (keyIsDown(TAB)) { tint(222, 145, 0); }
   image(grassImg1, point.x * divisor + 1, point.y * divisor + 1);
+  if (keyIsDown(TAB)) { noTint(); }
 }
 
 //               [0 -> Up] 

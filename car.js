@@ -52,10 +52,10 @@ function moveCar(grid, map, i,j){
             return;
         }
 
-        colorGrid(nextCoordinate, color(0, 0, 200));         // color the next position of the car
         car.setCoordinate(nextCoordinate);
-        map[nextCoordinate.x][nextCoordinate.y] = map[i][j]; //moving vehicle to its neighboring tile
+        map[nextCoordinate.x][nextCoordinate.y] = map[i][j];      //moving vehicle to its neighboring tile
         removeCar(map, i,j);
+        colorGrid(nextCoordinate, color(0, 0, 200, 200));         // color the next position of the car
         car.updateInterval();
         car.dir = car.getrandomDirection();
     }
@@ -65,7 +65,16 @@ function moveCar(grid, map, i,j){
 function removeCar(map, i,j){
     if (map[i][j] === undefined) { return; }
     map[i][j] = undefined;
-    //colorGrid(grid[i][j], color(255));
     image(roadImg, i * divisor + 1, j * divisor + 1);
-    addPoints(grid[i][j]);
+
+    // if TAB is held, ensure arrow marks are restored after road image is replaced
+    if (keyIsDown(TAB)) {
+        displayDirections(i, j);
+        for (let k = 0; k < 4; ++k) {
+            let nearby = grid[i][j].seeNeighbor(Object.keys(grid[i][j].direction)[k]);
+            if (nearby.direction[Object.keys(nearby.direction)[getOpposite(k)]] === true) {
+              displayDirections(nearby.x, nearby.y);
+            }
+        }
+    }
 }
