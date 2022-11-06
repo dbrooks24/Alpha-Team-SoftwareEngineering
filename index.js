@@ -5,6 +5,14 @@ const modal = document.getElementById("info-modal"); // Used for Instructions an
 const modalBody = document.querySelector(".modal-body");
 const modalCloseBtn = document.querySelector(".btn-close");
 const modalTitle = document.getElementById("info-modal-label");
+const dotCircle = document.getElementById('dot-circle');
+const timer = document.querySelector('.timer');
+let startTimeout = null;
+let time = {
+    ms: 0,
+    sec: 0,
+    min: 0
+};
 
 const instructionsHtml = [     // Instructions section
     `<div class="container">
@@ -58,6 +66,46 @@ function showModal(name) {
     }
 }
 
+
+function startTimer() {
+    startTimeout = setTimeout(function() {
+        time.ms = parseInt(time.ms);
+        time.sec = parseInt(time.sec);
+        time.min = parseInt(time.min);
+        time.ms++;
+ 
+        if (time.ms == 100) {
+            time.sec = time.sec + 1;
+            time.ms = 0;
+        }
+        if (time.sec == 60) {
+            time.min = time.min + 1;
+            time.sec = 0;
+        }
+        if (time.ms < 10) {
+            time.ms = '0' + time.ms;
+        }
+        if (time.sec < 10) {
+            time.sec = '0' + time.sec;
+        }
+        if (time.min < 10) {
+            time.min = '0' + time.min;
+        }
+        timer.innerHTML = `${time.min}:${time.sec}`;
+ 
+        // calling recursively
+        startTimer();
+    }, 10);
+}
+ 
+function resetTimer() {
+    time.ms = 0;
+    time.sec = 0;
+    time.min = 0;
+    clearTimeout(startTimeout);
+    timer.innerHTML = '00:00';
+}
+
 // enable toggling between modes by clicking the toggle button
 // left click on toggle button or click the spacebar
 document.querySelector(".switch").addEventListener("mousedown", (e) => {
@@ -71,10 +119,20 @@ window.addEventListener("keydown", (e) => {
 // toggle between "Road Editting" and "Begin Simulation"
 function toggleMode(isValid, isReset = false) {
     let initial = document.getElementById("toggle1");
-    if (isValid) { initial.outerHTML = "<input id = 'toggle1' type = 'checkbox' checked disabled>"; }
+    if (isValid) { 
+        initial.outerHTML = "<input id = 'toggle1' type = 'checkbox' checked disabled>";
+        startTimer();
+        dotCircle.classList.add('show');
+    }
     else { 
         initial.outerHTML = "<input id = 'toggle1' type = 'checkbox' disabled>";
-        if (!isReset) { showMsg("pause"); }
+        dotCircle.classList.remove('show');
+        if (!isReset) { 
+            showMsg("pause");
+            clearTimeout(startTimeout);
+        } else {
+            resetTimer();
+        }
     }
 }
 

@@ -235,5 +235,20 @@ div.sliderWrapper {
   font-weight: 600;
   right: 93px;
   top: 14px;
-  z-index: 9999;
+  min-width: 50px;
+}
+
+.timer-dot {
+  position: absolute;
+  right: 150px;
+  top: 18px;
+}
+
+.timer-dot #dot-circle {
+  opacity: 0;
+  transition: opacity ease-in-out 700ms;
+}
+
+.timer-dot #dot-circle.show {
+  opacity: 1;
 }
