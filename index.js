@@ -64,7 +64,7 @@ document.querySelector(".switch").addEventListener("mousedown", (e) => {
     if (e.button === 0) { changeMode(); }
 })
 window.addEventListener("keydown", (e) => {
-    if      (e.key === " ")     { changeMode();       }
+    if (e.key === " " || e.key === "Enter") { changeMode(); }
     else if (e.key === "Tab")   { e.preventDefault(); }     // disable original TAB-key functionality for screen dimming
 })
 

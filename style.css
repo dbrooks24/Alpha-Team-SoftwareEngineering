@@ -226,3 +226,14 @@ div.sliderWrapper {
 .btn-container .btn.btn-link:hover {
   background-color: #E6E6FA;
 }
+
+/* Timer CSS */
+.timer {
+  position: absolute;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 600;
+  right: 93px;
+  top: 14px;
+  z-index: 9999;
+}
