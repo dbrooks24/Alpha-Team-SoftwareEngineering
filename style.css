@@ -14,8 +14,9 @@ canvas {
   background-color:lavender;
 }
 
-#menuIcon{
-  display:flex column;
+#menuIcon {
+  display: flex;
+  height: 100%;
   flex-wrap:no-wrap;
   width:fit-content;
 }
@@ -39,15 +40,17 @@ cursor: pointer;
 .bar::after {
   content: '\2630';
   font-weight: bold;
-  display: inline-block;
-  transform: scale(2);
+  display: flex;
+  align-items: center;
+  transform: scale(1.5);
 }
 
 .closebtn::after {
   content: '\2715';
   font-weight: bold;
-  display: inline-block;
-  transform: scale(2);
+  display: flex;
+  align-items: center;
+  transform: scale(1.5);
 }
 
 #CanvasParent{
@@ -65,8 +68,11 @@ cursor: pointer;
   z-index:2;
   min-height: calc(100vh - var(--headerHeight));
   width:0px;
-  background-color:aliceblue;
   overflow-x: hidden;
+}
+
+.transparent {
+  background-color: rgb(240, 248, 255, 0.8);
 }
 
 .margin {
@@ -92,16 +98,20 @@ cursor: pointer;
 }
 
 .resetBtn {
-  border-color: #f38ba2;
+  border: none;
   background: #f17e97;
   position: absolute;
-  right: 0.2%;
-  top: 0.2%;
-  width: 150px;
-  padding: 8px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
+  right: 16px;
+  top: 8px;
+  border-radius: 4px;
+  padding: 8px 16px;
   cursor: pointer;
   color: #333333;
   text-align: middle;
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
 
 .resetBtn:hover {
@@ -114,9 +124,11 @@ cursor: pointer;
   position: relative;
   display: flex;
   margin: 0 auto;
-  bottom: 42px;
+  bottom: 32px;
   width: 80px;
   height: 34px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .switch input {
@@ -124,18 +136,20 @@ cursor: pointer;
 }
 
 .slider {
-  background: #ccc;
+  background: #FFFFFF;
+  border-radius: 4px;
   position: absolute;
   cursor: pointer;
-  /*top: 0.2%;*/
+  border-radius: 4px;
   top: 0; left: 0; right: 0; bottom: 0;
   -webkit-transition: 0.4s;
   transition: 0.4s;
 }
 
 .slider:before {
-  background-color: white;
+  background-color: #72e730;
   position: absolute;
+  border-radius: 4px;
   content: "";
   height: 28px;
   width: 36px;
@@ -145,10 +159,6 @@ cursor: pointer;
   transition: 0.4s;
 }
 
-input:checked + .slider {
-  background-color: #1fd637;
-}
-
 input:checked + .slider:before {
   -webkit-transform: translateX(36px);
   -ms-transform: translateX(36px);
@@ -156,14 +166,14 @@ input:checked + .slider:before {
 }
 
 label::before {
-  content: "Road Editting";
+  content: "Road Editing";
   margin-left: -70px;
   line-height: 16px;
 }
 
 label::after {
   content: "Begin Simulation";
-  margin-left: 110px;
+  margin-left: 122px;
   line-height: 16px;
 }
 
@@ -185,6 +195,7 @@ div.sliderWrapper {
   transition: 1s;
   float: left;
   position: absolute;
+  font-size: 12px;
 }
 
 .msg.fade-in {
@@ -195,4 +206,71 @@ div.sliderWrapper {
 .msg.hide {
   display: none;
   user-select: none;
+}
+
+.btn-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-container .btn.btn-link {
+  text-align: left;
+  text-decoration: none;
+  color: #333333;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 12px;
+  transition: background-color cubic-bezier(.25,.8,.25,1) 150ms;
+}
+
+.btn-container .btn.btn-link:hover {
+  background-color: #E6E6FA;
+}
+
+/* Timer CSS */
+.timer {
+  position: absolute;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 600;
+  right: 93px;
+  top: 14px;
+  min-width: 50px;
+}
+
+.timer-dot {
+  position: absolute;
+  right: 150px;
+  top: 18px;
+}
+
+.timer-dot #dot-circle {
+  opacity: 0;
+  transition: opacity ease-in-out 700ms;
+}
+
+.timer-dot #dot-circle.show {
+  opacity: 1;
+}
+
+#applyBtn {
+  border: none;
+  background: #f17e97;
+  position: absolute;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
+  right: 16px;
+  bottom: 6px;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #333333;
+  text-align: middle;
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+#applyBtn:hover {
+  border-color: #f57994;
+  background: #f3587a;
 }

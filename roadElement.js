@@ -1,12 +1,14 @@
 // define what points of a grid are T, B, R
 class coordinate {
-  constructor(x, y, element) {
+  constructor(x, y, element, img) {
     this.x = x;
     this.y = y;
     this.elem = element;
+    this.image = img;
     this.neighbors = [];
     // at least one must be false (cars can't go backwards on roads here)
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
+    this.updated = true;
   }
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(){
@@ -106,6 +108,7 @@ function assignDirection(initial, current) {
     if ((initial.direction[Object.keys(initial.direction)[index]] != true) &&
         (current.direction[Object.keys(current.direction)[opposite]] != true)) {
       initial.direction[Object.keys(initial.direction)[index]] = true;
+      initial.updated = false;
     } else {
       initial.direction[Object.keys(initial.direction)[index]] = false;
     }
@@ -113,23 +116,31 @@ function assignDirection(initial, current) {
 }
 
 // remove a road by simply right-clicking it (can't drag & delete multiple roads)
-function removeRoad(point) {
-  if (point.elem != 'R') { return; }
-  for (let i = 0; i < 4; ++i) {            // if intermediate road, don't delete
+function removeRoad(point, reset = false) {
+  if (((point.elem != 'R') && (point.elem != 'T')) || (carMap[point.x][point.y] != undefined)) { return; }
+  for (let i = 0; (i < 4) && (reset === false); ++i) {            // if intermediate road, don't delete
     if (point.direction[Object.keys(point.direction)[i]] === true) {
       return;
     }
   } 
 
-  // for any road that goes into this tile, make their respective direction flag false
+  // for any road that goes into this tile, make their respective direction flag false and clear arrow residue
+  colorGrid(point, 0, true);
   for (let i = 0; i < 4; ++i) {
     let nearby = point.seeNeighbor(Object.keys(point.direction)[i]);
     if (nearby.direction[Object.keys(nearby.direction)[getOpposite(i)]] === true) {
       nearby.direction[Object.keys(nearby.direction)[getOpposite(i)]] = false;
+      nearby.updated = false;
+      colorGrid(nearby, 0, true);
     }
   }
   point.elem = 'B';
   point.neighbors = [];
+
+  // darken grass sprites when tabbed
+  if (keyIsDown(TAB)) { tint(222, 145, 0); }
+  image(point.image, point.x * divisor + 1, point.y * divisor + 1);
+  if (keyIsDown(TAB)) { noTint(); }
 }
 
 //               [0 -> Up] 
