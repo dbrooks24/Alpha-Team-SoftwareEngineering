@@ -166,7 +166,7 @@ input:checked + .slider:before {
 }
 
 label::before {
-  content: "Road Editting";
+  content: "Road Editing";
   margin-left: -70px;
   line-height: 16px;
 }
@@ -251,4 +251,26 @@ div.sliderWrapper {
 
 .timer-dot #dot-circle.show {
   opacity: 1;
+}
+
+#applyBtn {
+  border: none;
+  background: #f17e97;
+  position: absolute;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
+  right: 16px;
+  bottom: 6px;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #333333;
+  text-align: middle;
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+#applyBtn:hover {
+  border-color: #f57994;
+  background: #f3587a;
 }

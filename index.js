@@ -17,7 +17,7 @@ let time = {
 const instructionsHtml = [     // Instructions section
     `<div class="container">
     <ul class="text-info margin">
-        <li>Press either the <b>spacebar</b> or the <b>toggle</b> to switch between <b>Road Editing</b> and<br><b>Begin Simulation</b> modes.</li>
+        <li>Press the <b>spacebar</b>, <b>enter</b>, or <b>toggle</b> to switch between <b>Road Editing</b> and <b>Begin Simulation</b> modes.</li>
         <li>Click <b>Reset Simulation</b> to clear the entire board. </li>
         <li>Hold <b>tab</b> to display road connectivity. </li>
         <li>When in <b>Road Editing</b> mode:</li>
@@ -33,6 +33,19 @@ const instructionsHtml = [     // Instructions section
                 <li><b>Left-click</b> a road tile with connectivity to create a single car entity.</li>
                 <li>(Future) <b>Right-click</b> to toggle traffic lights.</li>
             </ul>
+    </ul></div>`
+].join("<br/>");
+
+// make the min and max SpeedInput default with current values
+const configHtml = [
+    `<div class="container"><ul class ="text-info margin">
+        <li> Vehicle Speeds (Randomized): </li>
+        <ul class="text-secondary"><p>-Only applies to newly spawned cars-</p></ul>
+        <div class="menuSlider"><div id="speedSlider"></div></div><br><br>
+        <!--<li> Car Spawning Frequency: </li>-->
+        <button id="applyBtn" onclick="applyChanges()">
+            Apply
+        </button><br>
     </ul></div>`
 ].join("<br/>");
 
@@ -59,9 +72,15 @@ function showModal(name) {
             modalTitle.innerText = name;
             modalBody.innerHTML = instructionsHtml;
             return;
+        case "Config":
+            //print("inside" + name);
+            modalTitle.innerText = name;
+            modalBody.innerHTML = configHtml;
+            showSpeedSlider();
+            return;
         case "About":
             modalTitle.innerText = name;
-            modalBody.innerHTML = aboutHtml
+            modalBody.innerHTML = aboutHtml;
             return;
     }
 }
@@ -104,6 +123,34 @@ function resetTimer() {
     time.min = 0;
     clearTimeout(startTimeout);
     timer.innerHTML = '00:00';
+}
+
+// user can modify min and max speeds of cars
+function showSpeedSlider() {
+    let slider = document.getElementById("speedSlider");
+    noUiSlider.create(slider, {
+        //start: [4, 10],
+        start: [Car.minSpeed, Car.maxSpeed],
+        step: 1,
+        connect: true,
+        pips: {
+            mode: 'steps',
+            density: 4
+        },
+        range: {
+            'min': 1,
+            'max': 20
+        }
+    });
+}
+
+// apply new min and max speeds for cars
+function applyChanges() {
+    let slider = document.getElementById("speedSlider");
+    print(slider.noUiSlider.get()[0] + ", " + slider.noUiSlider.get()[1]);
+    handleValue = slider.noUiSlider.get(true);
+    Car.minSpeed = handleValue[0];
+    Car.maxSpeed = handleValue[1];
 }
 
 // enable toggling between modes by clicking the toggle button

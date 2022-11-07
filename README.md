@@ -6,6 +6,11 @@ Repo for the Alpha Team at KSU - Software Engineering
 # CarGo Project Idea:
 A traffic game using a grid canvas, having realistic traffic patterns and controls
 
+# Play the Game:
+Play from either of the two links:
+    https://tenacioustapioca.github.io/Alpha-Team-SoftwareEngineering/
+    https://dbrooks24.github.io/Alpha-Team-SoftwareEngineering/
+
 
 ## Shared File Location
 OneDrive Shared folder: https://1drv.ms/f/s!AiQZOPGaBs9-gv8dPa4OaaqxA5yMkg
