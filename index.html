@@ -13,6 +13,8 @@
     <script src="p5.js"></script>
     <!--<script src="p5.sound.min.js"></script>-->
     <link rel="stylesheet" type="text/css" href="style.css" />
+    <link href="nouislider.css" rel="stylesheet">
+    <script src="nouislider.js"></script>
     <script src="roadElement.js"></script>
     <script src="car.js"></script>
     <title>Car Simulator</title>
@@ -53,6 +55,15 @@
             data-bs-target="#info-modal"
           >
             Instructions
+          </button>
+          <button
+            id="Config"
+            class="btn btn-link"
+            onclick="showModal('Config')"
+            data-bs-toggle="modal"
+            data-bs-target="#info-modal"
+          >
+            Config
           </button>
           <button
             id="About"

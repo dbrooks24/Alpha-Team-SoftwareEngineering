@@ -1,12 +1,12 @@
+
 class Car{
     static maxSpeed = 10; //speed is represented by tiles per second.
     static minSpeed = 4;
     constructor(startingCoordinate, img, speed= undefined){
-        //this.image = image
         this.coordinate = startingCoordinate;
         this.image = img;
         this.dir = this.getrandomDirection();
-        if(speed === undefined) speed = Math.floor(Math.random() * (Car.maxSpeed - Car.minSpeed) + Car.minSpeed);
+        if (speed === undefined) speed = Math.floor(Math.random() * (Car.maxSpeed - Car.minSpeed + 1) + Car.minSpeed);
         console.log(speed);
         if(speed < Car.minSpeed) speed = Car.minSpeed;
         if(speed > Car.maxSpeed) speed = Car.maxSpeed;
@@ -54,7 +54,7 @@ class Car{
                     break;
             }
             translate(-(posX + imgSize/2), -(posY + imgSize / 2));
-            image(this.image, posX, posY, imgSize, imgSize, 0, 0);
+            image(this.image, posX + 1, posY - 2, this.image.width, this.image.height);
         pop();
     }
     //chose a random direction if at an intersection
