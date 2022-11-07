@@ -54,7 +54,7 @@ class Car{
                     break;
             }
             translate(-(posX + imgSize/2), -(posY + imgSize / 2));
-            image(this.image, posX, posY, imgSize, imgSize, 0, 0);
+            image(this.image, posX + 1, posY - 2, this.image.width, this.image.height);
         pop();
     }
     //chose a random direction if at an intersection
