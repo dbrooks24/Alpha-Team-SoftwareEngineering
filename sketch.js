@@ -8,10 +8,19 @@ let simulationHasStarted = false, menuOpen = false ; // menuOpen is to prevent t
 let canvas2;                                         // enables dimming of screen
 
 // prepare car and road sprites
-let roadImg, grassImg1;
+let roadImg, grassImgs, carImgs;
 function preload() {
+  carImgs = [
+              loadImage("images/car1.png"),
+              loadImage("images/car2.png"),
+              loadImage("images/car3.png")
+            ]
   roadImg = loadImage("images/tempRoad.png");
-  grassImg1 = loadImage("images/grass.png");      // 3 total variants; we could randomly select one to place for variety
+  grassImgs = [
+                loadImage("images/grass.png"),
+                loadImage("images/grass2.png"),
+                loadImage("images/grass3.png")
+              ]
 }
 
 // setup the grid for traffic to take place
@@ -38,10 +47,11 @@ function setup() {
   // initialize the carmap indicies to undefined
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
-      grid[i][j] = new coordinate(i, j, "B");
+      let rand = randomInRange(0, grassImgs.length);
+      grid[i][j] = new coordinate(i, j, "B", grassImgs[rand]);
       carMap[i][j] = undefined;
       colorGrid(grid[i][j], 175);
-      image(grassImg1, i * divisor + 1, j * divisor + 1);
+      image(grid[i][j].image, i * divisor + 1, j * divisor + 1);
     }
   }
   canvas2 = createGraphics(cols * divisor, rows * divisor);
@@ -71,7 +81,13 @@ function draw() {
           }
         }
       } 
-
+      if(grid[i][j].elem === 'T') { 
+        if(millis() > grid[i][j].trafficFlowInterval){
+          grid[i][j].changeCurrentInput();
+          grid[i][j].updateInterval();
+        }
+        drawTrafficLight(grid[i][j]);
+      }
       //drawing cars 
       if(carMap[i][j] != undefined){
         if(carMap[i][j].isAtAnExit()){
@@ -80,14 +96,6 @@ function draw() {
           if(millis() > carMap[i][j].moveInterval)
             moveCar(grid, carMap, i,j);
         }
-      }
-      
-      if(grid[i][j].elem === 'T') { 
-        if(millis() > grid[i][j].trafficFlowInterval){
-          grid[i][j].changeCurrentInput();
-          grid[i][j].updateInterval();
-        }
-        drawTrafficLight(grid[i][j]);
       }
     }
   }
@@ -116,7 +124,7 @@ function mousePressed() {
     let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
     //create new car if the coordinate is empty and the tile is a road tile
     if(carMap[i][j] === undefined && grid[i][j].elem === 'R'){
-      carMap[i][j] = new Car(grid[i][j]);
+      carMap[i][j] = new Car(grid[i][j], carImgs[randomInRange(0, carImgs.length)]);
     }
   }
 }
@@ -234,7 +242,6 @@ function drawArrow(x, y, degree) {
   realY = y * divisor;
   stroke('yellow');
   strokeWeight(3.5);
-
   translate(realX + 10, realY + 10);        // set pivot of rotation
   rotate(degree);
   translate(-realX - 10, -realY - 10);      // reset pivot of rotation
@@ -261,11 +268,11 @@ function restoreLook() {
         colorGrid(grid[i][j], 0, true);
       } else {
         colorGrid(grid[i][j], 0, true);
-        image(grassImg1, i * divisor + 1, j * divisor + 1);
+        image(grid[i][j].image, i * divisor + 1, j * divisor + 1);
       }
 
       if (carMap[i][j] != undefined) {
-        colorGrid(grid[i][j], color(0, 0, 200));
+        carMap[i][j].draw();
       }
     }
   }
@@ -338,4 +345,7 @@ function IsIntersection(point){
     
   }
   return result;
+}
+function randomInRange(min, max){
+  return Math.floor(Math.random() * (max - min) + min);
 }

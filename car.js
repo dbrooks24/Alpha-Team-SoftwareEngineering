@@ -1,9 +1,10 @@
 class Car{
     static maxSpeed = 10; //speed is represented by tiles per second.
     static minSpeed = 4;
-    constructor(startingCoordinate, speed= undefined){
+    constructor(startingCoordinate, img, speed= undefined){
         //this.image = image
         this.coordinate = startingCoordinate;
+        this.image = img;
         this.dir = this.getrandomDirection();
         if(speed === undefined) speed = Math.floor(Math.random() * (Car.maxSpeed - Car.minSpeed) + Car.minSpeed);
         console.log(speed);
@@ -28,6 +29,33 @@ class Car{
     }
     updateInterval(){
         this.moveInterval = millis() + 1000 / this.speed; 
+    }
+    draw(){
+        let posX = this.coordinate.x * divisor + 3;
+        let posY = this.coordinate.y * divisor + 3;
+        let imgSize = 14;
+
+        push();
+            translate(posX + imgSize / 2, posY + imgSize / 2);
+
+            //car sprites are originally facing down
+            switch(this.dir){
+                case 'down':
+                    rotate(0);
+                    break;
+                case 'left':
+                    rotate(90);
+                    break;
+                case 'up':
+                    rotate(180);
+                    break;
+                case 'right':
+                    rotate(270);
+                    break;
+            }
+            translate(-(posX + imgSize/2), -(posY + imgSize / 2));
+            image(this.image, posX, posY, imgSize, imgSize, 0, 0);
+        pop();
     }
     //chose a random direction if at an intersection
     getrandomDirection(){
@@ -55,7 +83,8 @@ function moveCar(grid, map, i,j){
         car.setCoordinate(nextCoordinate);
         map[nextCoordinate.x][nextCoordinate.y] = map[i][j];      //moving vehicle to its neighboring tile
         removeCar(map, i,j);
-        colorGrid(nextCoordinate, color(0, 0, 200, 200));         // color the next position of the car
+        //colorGrid(nextCoordinate, color(0, 0, 200, 200));         // color the next position of the car
+        car.draw();
         car.updateInterval();
         car.dir = car.getrandomDirection();
     }

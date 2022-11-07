@@ -1,9 +1,10 @@
 // define what points of a grid are T, B, R
 class coordinate {
-  constructor(x, y, element) {
+  constructor(x, y, element, img) {
     this.x = x;
     this.y = y;
     this.elem = element;
+    this.image = img;
     this.neighbors = [];
     // at least one must be false (cars can't go backwards on roads here)
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
@@ -138,7 +139,7 @@ function removeRoad(point, reset = false) {
 
   // darken grass sprites when tabbed
   if (keyIsDown(TAB)) { tint(222, 145, 0); }
-  image(grassImg1, point.x * divisor + 1, point.y * divisor + 1);
+  image(point.image, point.x * divisor + 1, point.y * divisor + 1);
   if (keyIsDown(TAB)) { noTint(); }
 }
 
