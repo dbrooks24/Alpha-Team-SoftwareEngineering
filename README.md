@@ -8,8 +8,8 @@ A traffic game using a grid canvas, having realistic traffic patterns and contro
 
 # Play the Game:
 Play from either of the two links:
-    https://tenacioustapioca.github.io/Alpha-Team-SoftwareEngineering/
-    https://dbrooks24.github.io/Alpha-Team-SoftwareEngineering/
+    <br>https://dbrooks24.github.io/Alpha-Team-SoftwareEngineering/
+    <br>https://tenacioustapioca.github.io/Alpha-Team-SoftwareEngineering/
 
 
 ## Shared File Location

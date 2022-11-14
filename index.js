@@ -39,7 +39,7 @@ const instructionsHtml = [     // Instructions section
 // make the min and max SpeedInput default with current values
 const configHtml = [
     `<div class="container"><ul class ="text-info margin">
-        <li> Vehicle Speeds (Randomized): </li>
+        <li> Car Speeds (Randomized): </li>
         <ul class="text-secondary"><p>-Only applies to newly spawned cars-</p></ul>
         <div class="menuSlider"><div id="speedSlider"></div></div><br><br>
         <!--<li> Car Spawning Frequency: </li>-->
@@ -55,7 +55,7 @@ const saveUploadHtml = [
         <input type="text" name="fileName" placeholder="File Name (Optional)">
         <input type="submit" onclick="saveMap()" value="Save">
         <li> Upload a Map: </li>
-        <input type="submit" onclick="loadMap()" value="Upload">
+        <input type="file" id="loadMap" accept="text/plain" onchange="loadMap()">
     </ul></div>`
 ].join("<br/>");
 
@@ -227,17 +227,16 @@ function saveMap() {
     for (let i = 0; i < cols; ++i) {
         for (let j = 0; j < rows; ++j) {
             if (grid[i][j].elem === 'B') {
-                //print("#");
-                data += '#';
-            } else if (grid[i][j].elem === 'R') {
+                data += "#";
+            } else if (grid[i][j].elem !== 'B') {       // Road or Structures
                 for (let k = 0; k < 4; ++k) {
                     let direction = grid[i][j].direction[Object.keys(grid[i][j].direction)[k]];
-                    if (direction) { data += '1'; } //print("1"); }
-                    else           { data += '0'; } //print("0"); }
+                    if (direction) { data += "1"; }
+                    else           { data += "0"; }
                 }
-            }                     // traffic lights may already get generated upon uploading?
-
-            // save any structures built on roads (such as traffic lights [maybe], car spawning points, etc.)
+                data += grid[i][j].elem;
+            }
+            if (j !== (rows - 1)) { data += '|'; }
         }
         data += '\n';
     }
@@ -250,6 +249,56 @@ function saveMap() {
     link.click();
 }
 
+// load a given map (no error checking atm)
 function loadMap() {
+    const file = document.getElementById("loadMap").files[0];
+    const reader = new FileReader();
 
+    // parsing text file for character array
+    let text, charList = [];
+    reader.onload = (evt) => {
+        text = evt.target.result.split('\n');
+        for (let j = 0; j < text.length; ++j) {
+            charList = [...charList, ...text[j].split('|')];
+        }
+
+        // clear board and copy state from given file
+        let index = 0;
+        resetGrid();
+        for (let i = 0; i < cols; ++i) {
+            for (let j = 0; j < rows; ++j) {
+                if (charList[index] !== '#') {
+                    grid[i][j].neighbors = getNeighbors(grid[i][j]);
+                    grid[i][j].updated = false;
+                    for (let k = 0; k < 4; ++k) {
+                        if (charList[index][k] !== '0') {
+                            grid[i][j].direction[Object.keys(grid[i][j].direction)[k]] = true;
+                        }
+                    }
+
+                    // check last char for structure placements
+                    grid[i][j].elem = charList[index][4];
+                }
+                ++index;
+            }
+        }
+        
+        // apply structures on top
+        for (let i = 0; i < cols; ++i) {
+            for (let j = 0; j < rows; ++j) {
+                switch (grid[i][j].elem) {
+                    case 'T':                                   // traffic lights
+                        grid[i][j].addTrafficLightProperties();
+                        break;
+                    //case 'S':                                     // car spawn
+                }
+            }
+        }
+    };
+    /*
+    reader.onloadend = function () {        // debug txt parsing in console
+        console.log(charList);
+    }
+    */
+    reader.readAsText(file);             // triggers onload function
 }
