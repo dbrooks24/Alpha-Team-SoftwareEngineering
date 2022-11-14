@@ -1,7 +1,7 @@
 var parentID = 'CanvasParent';
 var canvasParent = document.getElementById(parentID);
-let divisor = 20;
-let cols, rows, grid;
+let divisor = 40;
+let cols, rows, grid, carMap;
 let prev = new coordinate(-1, -1, 'B');
 let vehicles;
 let simulationHasStarted = false, menuOpen = false ; // menuOpen is to prevent the user from interacting with the grid when menu is open
@@ -15,7 +15,7 @@ function preload() {
               loadImage("images/car2.png"),
               loadImage("images/car3.png")
             ]
-  roadImg = loadImage("images/tempRoad.png");
+  roadImg = loadImage("images/road.png");
   grassImgs = [
                 loadImage("images/grass.png"),
                 loadImage("images/grass2.png"),
@@ -125,6 +125,7 @@ function mousePressed() {
     //create new car if the coordinate is empty and the tile is a road tile
     if(carMap[i][j] === undefined && grid[i][j].elem === 'R'){
       carMap[i][j] = new Car(grid[i][j], carImgs[randomInRange(0, carImgs.length)]);
+      carMap[i][j].draw();
     }
   }
 }
@@ -242,13 +243,14 @@ function drawArrow(x, y, degree) {
   realY = y * divisor;
   stroke('yellow');
   strokeWeight(3.5);
-  translate(realX + 10, realY + 10);        // set pivot of rotation
+  //strokeWeight(6);
+  translate(realX + (divisor / 2), realY + (divisor / 2));        // set pivot of rotation
   rotate(degree);
-  translate(-realX - 10, -realY - 10);      // reset pivot of rotation
+  translate(-realX - (divisor / 2), -realY - (divisor / 2));      // reset pivot of rotation
 
   // draw directional arrow
-  line(realX + 10, realY + 10, realX + 10, realY - 10);
-  triangle(realX + 7.8, realY - 5, realX + 10, realY - 10, realX + 12.2, realY - 5);
+  line(realX + (divisor / 2), realY + (divisor / 2), realX + (divisor / 2), realY - (divisor / 2));
+  triangle(realX + 15.6, realY - 10, realX + (divisor / 2), realY - (divisor / 2), realX + 24.4, realY - 10);
   pop();
 }
 
@@ -272,6 +274,7 @@ function restoreLook() {
       }
 
       if (carMap[i][j] != undefined) {
+        image(roadImg, i * divisor + 1, j * divisor + 1);
         carMap[i][j].draw();
       }
     }
@@ -313,6 +316,7 @@ function drawTrafficLight(point){
   let drawLeft  = point => triangle(point.x * divisor + 4, point.y * divisor + 4, point.x * divisor + 9.5, point.y * divisor + 10, point.x * divisor + 4, point.y * divisor + 15);
   let drawRight = point => triangle(point.x * divisor + 15, point.y * divisor + 4, point.x * divisor + 9.5, point.y * divisor + 10, point.x * divisor + 15, point.y * divisor + 15);
   let drawDown  = point => triangle(point.x * divisor + 4, point.y * divisor + 15, point.x * divisor  + 9.5, point.y * divisor + 10, point.x * divisor + 15, point.y * divisor + 15);
+  push();
   if(point.trafficInputDirections.up){ 
     if(point.currentInput == 'up'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
     drawUp(point);
@@ -329,7 +333,7 @@ function drawTrafficLight(point){
     if(point.currentInput == 'down'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
     drawDown(point);
   }
-
+  pop();
 }
 //a intersection is any point with traffic coming in from more than one direction
 function IsIntersection(point){

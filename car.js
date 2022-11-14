@@ -1,4 +1,3 @@
-
 class Car{
     static maxSpeed = 10; //speed is represented by tiles per second.
     static minSpeed = 4;
@@ -10,7 +9,7 @@ class Car{
         console.log(speed);
         if(speed < Car.minSpeed) speed = Car.minSpeed;
         if(speed > Car.maxSpeed) speed = Car.maxSpeed;
-        this.speed = speed; 
+        this.speed = speed;
         this.moveInterval = 0;
     }
     //removes a car if a car is on a edge coordinate and is headed outside of the map
@@ -31,9 +30,9 @@ class Car{
         this.moveInterval = millis() + 1000 / this.speed; 
     }
     draw(){
-        let posX = this.coordinate.x * divisor + 3;
-        let posY = this.coordinate.y * divisor + 3;
-        let imgSize = 14;
+        let posX = this.coordinate.x * divisor;
+        let posY = this.coordinate.y * divisor;
+        let imgSize = divisor;
 
         push();
             translate(posX + imgSize / 2, posY + imgSize / 2);
@@ -54,7 +53,7 @@ class Car{
                     break;
             }
             translate(-(posX + imgSize/2), -(posY + imgSize / 2));
-            image(this.image, posX + 1, posY - 2, this.image.width, this.image.height);
+            image(this.image, posX + 9, posY + 3, this.image.width, this.image.height);
         pop();
     }
     //chose a random direction if at an intersection
@@ -80,10 +79,9 @@ function moveCar(grid, map, i,j){
             return;
         }
 
-        car.setCoordinate(nextCoordinate);
+        car.setCoordinate(nextCoordinate);        
         map[nextCoordinate.x][nextCoordinate.y] = map[i][j];      //moving vehicle to its neighboring tile
         removeCar(map, i,j);
-        //colorGrid(nextCoordinate, color(0, 0, 200, 200));         // color the next position of the car
         car.draw();
         car.updateInterval();
         car.dir = car.getrandomDirection();

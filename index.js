@@ -49,6 +49,16 @@ const configHtml = [
     </ul></div>`
 ].join("<br/>");
 
+const saveUploadHtml = [
+    `<div class="container"><ul class ="text-info margin">
+        <li> Save Your Map: </li>
+        <input type="text" name="fileName" placeholder="File Name (Optional)">
+        <input type="submit" onclick="saveMap()" value="Save">
+        <li> Upload a Map: </li>
+        <input type="submit" onclick="loadMap()" value="Upload">
+    </ul></div>`
+].join("<br/>");
+
 const aboutHtml = '<div class="container"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
  'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit ' + 
  'esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>'
@@ -73,11 +83,14 @@ function showModal(name) {
             modalBody.innerHTML = instructionsHtml;
             return;
         case "Config":
-            //print("inside" + name);
             modalTitle.innerText = name;
             modalBody.innerHTML = configHtml;
             showSpeedSlider();
             return;
+        case "Save/Upload":
+            modalTitle.innerText = name;
+            modalBody.innerHTML = saveUploadHtml;
+            return
         case "About":
             modalTitle.innerText = name;
             modalBody.innerHTML = aboutHtml;
@@ -202,4 +215,41 @@ function showMsg(msgId) {
             }, 1000);
         }, 3000);
     });
+}
+
+// save current state of map as a text file
+function saveMap() {
+    let fileName = document.getElementsByName("fileName")[0].value + ".txt";
+    if (fileName === ".txt") { fileName = "myMap.txt"; }    // default if no name is given
+    print("SAVED AS " + fileName);
+
+    let data = '';
+    for (let i = 0; i < cols; ++i) {
+        for (let j = 0; j < rows; ++j) {
+            if (grid[i][j].elem === 'B') {
+                //print("#");
+                data += '#';
+            } else if (grid[i][j].elem === 'R') {
+                for (let k = 0; k < 4; ++k) {
+                    let direction = grid[i][j].direction[Object.keys(grid[i][j].direction)[k]];
+                    if (direction) { data += '1'; } //print("1"); }
+                    else           { data += '0'; } //print("0"); }
+                }
+            }                     // traffic lights may already get generated upon uploading?
+
+            // save any structures built on roads (such as traffic lights [maybe], car spawning points, etc.)
+        }
+        data += '\n';
+    }
+
+    // provide download opportunity
+    const file = new Blob([data], {type: "application/octet-stream"});
+    const link = document.createElement('a');
+    link.setAttribute('download', fileName);
+    link.href = window.URL.createObjectURL(file);
+    link.click();
+}
+
+function loadMap() {
+
 }
