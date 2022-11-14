@@ -1,7 +1,7 @@
 var parentID = 'CanvasParent';
 var canvasParent = document.getElementById(parentID);
 let divisor = 40;
-let cols, rows, grid, carMap;
+let cols, rows, grid;
 let prev = new coordinate(-1, -1, 'B');
 let vehicles;
 let simulationHasStarted = false, menuOpen = false ; // menuOpen is to prevent the user from interacting with the grid when menu is open
