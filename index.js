@@ -1,4 +1,5 @@
 var menu = document.getElementById("menu");
+var structMenu = document.getElementById("structureList");
 var canvas = document.getElementById("CanvasParent");
 var header = document.getElementById("header");
 const modal = document.getElementById("info-modal"); // Used for Instructions and About display
@@ -31,7 +32,7 @@ const instructionsHtml = [     // Instructions section
         <li>When in <b>Begin Simulation</b> mode:</li>
             <ul class="text-secondary">
                 <li><b>Left-click</b> a road tile with connectivity to create a single car entity.</li>
-                <li>(Future) <b>Right-click</b> to toggle traffic lights.</li>
+                <li><b>Left-click</b> the traffic lights to toggle it.</li>
             </ul>
     </ul></div>`
 ].join("<br/>");
@@ -62,6 +63,16 @@ const saveUploadHtml = [
 const aboutHtml = '<div class="container"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
  'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit ' + 
  'esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>'
+
+const creditsHtml = [
+    `<div class="container"><p>
+        <a href="https://github.com/leongersen/noUiSlider">noUiSlider</a><br>
+        &emsp;Copyright (c) 2019 Léon Gersen<br>
+        &emsp;<a href="https://github.com/leongersen/noUiSlider/blob/master/LICENSE.md" style="text-decoration: none">License (MIT)</a><br><br>
+        <a href="https://www.vecteezy.com/vector-art/2006395-car-top-view-vector-design-illustration-set-isolated-on-white-background">Car Sprites</a><br>
+        &emsp;<a href="https://www.vecteezy.com/free-vector/car" style="text-decoration: none">Car Vectors by Vecteezy</a><br><br>
+    </p></div>`
+].join("<br/>");
 
 // opens and closes menu
 const btn = document.getElementById("menuIcon");
@@ -94,6 +105,10 @@ function showModal(name) {
         case "About":
             modalTitle.innerText = name;
             modalBody.innerHTML = aboutHtml;
+            return;
+        case "Credits":
+            modalTitle.innerText = name;
+            modalBody.innerHTML = creditsHtml;
             return;
     }
 }
@@ -176,7 +191,7 @@ window.addEventListener("keydown", (e) => {
     else if (e.key === "Tab")   { e.preventDefault(); }     // disable original TAB-key functionality for screen dimming
 })
 
-// toggle between "Road Editting" and "Begin Simulation"
+// toggle between "Road Editing" and "Begin Simulation"
 function toggleMode(isValid, isReset = false) {
     let initial = document.getElementById("toggle1");
     if (isValid) { 
@@ -290,15 +305,37 @@ function loadMap() {
                     case 'T':                                   // traffic lights
                         grid[i][j].addTrafficLightProperties();
                         break;
-                    //case 'S':                                     // car spawn
+                    case 'S':                                     // car spawn
+                        drawStructure(grid[i][j].elem, i, j);
+                        break;
                 }
             }
         }
     };
-    /*
-    reader.onloadend = function () {        // debug txt parsing in console
-        console.log(charList);
-    }
-    */
     reader.readAsText(file);             // triggers onload function
 }
+
+// opens the menu containing structures
+let structMenuOpen = false;
+const structBtn = document.getElementById("structureMenu");
+const structArea = document.getElementById("structContents");
+structBtn.addEventListener("click", () => {
+    structMenuOpen = structBtn.classList.toggle("On");
+    if (structMenuOpen) {
+        menuOpen = true;
+        structBtn.style.width = "160px";
+        structArea.style.width = "160px";
+    } else {
+        menuOpen = false;
+        setTimeout(function() { structArea.style.width="2%"; }, "100");
+        setTimeout(function() { structBtn.style.width="2%";  }, "100");
+    }
+});
+
+// structure options (Op)
+// Car Spawn Structure represented as 'S'
+const carSpawnOp = document.getElementById("carSpawn");
+carSpawnOp.addEventListener("click", () => {
+    structure = 'S';
+    structurePicked = true;
+});
