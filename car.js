@@ -92,7 +92,7 @@ function moveCar(grid, map, i,j){
 function removeCar(map, i,j){
     if (map[i][j] === undefined) { return; }
     map[i][j] = undefined;
-    image(roadImg, i * divisor + 1, j * divisor + 1);
+    drawStructure(grid[i][j].elem, i, j);
 
     // if TAB is held, ensure arrow marks are restored after road image is replaced
     if (keyIsDown(TAB)) {

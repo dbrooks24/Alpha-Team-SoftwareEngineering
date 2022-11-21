@@ -9,6 +9,7 @@ class coordinate {
     // at least one must be false (cars can't go backwards on roads here)
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
     this.updated = true;
+    this.aTimer = 0;
   }
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(){

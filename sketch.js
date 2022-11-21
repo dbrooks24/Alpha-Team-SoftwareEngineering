@@ -5,10 +5,11 @@ let cols, rows, grid;
 let prev = new coordinate(-1, -1, 'B');
 let vehicles;
 let simulationHasStarted = false, menuOpen = false ; // menuOpen is to prevent the user from interacting with the grid when menu is open
+let structurePicked = false, structure = '';         // enables structure placement
 let canvas2;                                         // enables dimming of screen
 
 // prepare car and road sprites
-let roadImg, grassImgs, carImgs;
+let roadImg, grassImgs, carImgs, carSpawnGif;
 function preload() {
   carImgs = [
               loadImage("images/car1.png"),
@@ -16,6 +17,7 @@ function preload() {
               loadImage("images/car3.png")
             ]
   roadImg = loadImage("images/road.png");
+  carSpawnGif = loadImage("images/carSpawn.gif");
   grassImgs = [
                 loadImage("images/grass.png"),
                 loadImage("images/grass2.png"),
@@ -82,7 +84,7 @@ function draw() {
         }
       } 
       if(grid[i][j].elem === 'T') { 
-        if(millis() > grid[i][j].trafficFlowInterval){
+        if((millis() > grid[i][j].trafficFlowInterval) && (simulationHasStarted)){
           grid[i][j].changeCurrentInput();
           grid[i][j].updateInterval();
         }
@@ -92,10 +94,30 @@ function draw() {
       if(carMap[i][j] != undefined){
         if(carMap[i][j].isAtAnExit()){
           removeCar(carMap, i,j);
-        }else if( simulationHasStarted){
+        } else if (simulationHasStarted){
           if(millis() > carMap[i][j].moveInterval)
             moveCar(grid, carMap, i,j);
         }
+      } else if ((grid[i][j].elem === 'S') && simulationHasStarted && carMap[i][j] === undefined) {   // spawn cars from spawn point
+        if (millis() >= (1000 + grid[i][j].aTimer)) {                                                        // 4000 should be adjustable in config soon
+          carMap[i][j] = new Car(grid[i][j], carImgs[randomInRange(0, carImgs.length)]);
+          carMap[i][j].draw();
+          grid[i][j].aTimer = millis();
+        }
+      }
+
+      // drawing structures
+      if (grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
+        drawStructure(grid[i][j].elem, i, j);
+        if (keyIsDown(TAB)) {
+          displayDirections(i, j);
+          for (let k = 0; k < 4; ++k) {
+              let nearby = grid[i][j].seeNeighbor(Object.keys(grid[i][j].direction)[k]);
+              if (nearby.direction[Object.keys(nearby.direction)[getOpposite(k)]] === true) {
+                displayDirections(nearby.x, nearby.y);
+              }
+          }
+      }
       }
     }
   }
@@ -114,11 +136,19 @@ function colorGrid(point, color, disableFill = false) {
 // record initial 'R'-tile, then go straight to mouseDragged()
 // if it's a right-click, delete a non-intermediate road if possible
 function mousePressed() {
-  if (!isInsideCanvas() || menuOpen) { return; }
+  //if (!isInsideCanvas() || menuOpen) { return; }
+  if (!isInsideCanvas()) { return; }
   prev = grid[floor(mouseX / divisor)][floor(mouseY / divisor)];
   if (mouseButton === RIGHT) {
-    if(!simulationHasStarted)
-      removeRoad(grid[floor(mouseX / divisor)][floor(mouseY / divisor)]);
+    if(!simulationHasStarted) {
+      if (grid[prev.x][prev.y].elem !== 'R' && grid[prev.x][prev.y].elem !== 'T' && grid[prev.x][prev.y].elem !== 'B') { // remove structure
+        grid[prev.x][prev.y].elem = 'R';
+        grid[prev.x][prev.y].updated = false;
+        grid[prev.x][prev.y].timer = 0;
+      } else {
+        removeRoad(grid[floor(mouseX / divisor)][floor(mouseY / divisor)]);
+      }
+    }
     removeCar(carMap, floor(mouseX / divisor),floor(mouseY / divisor));
   } else if(mouseButton === LEFT && simulationHasStarted){
     let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
@@ -127,6 +157,27 @@ function mousePressed() {
       carMap[i][j] = new Car(grid[i][j], carImgs[randomInRange(0, carImgs.length)]);
       carMap[i][j].draw();
     }
+    // toggle traffic lights
+    if (grid[i][j].elem === 'T') {
+      grid[i][j].changeCurrentInput();
+      grid[i][j].updateInterval();
+      drawTrafficLight(grid[i][j]);
+    }
+  } else if (structurePicked && !simulationHasStarted && structure !== '' && (grid[prev.x][prev.y].elem === 'R')) { // structure placement
+
+    // structures must be placed on road tiles where no other road tiles go into
+    for (let i = 0; i < 4; ++i) {
+      let nearby = grid[prev.x][prev.y].seeNeighbor(Object.keys(grid[prev.x][prev.y].direction)[i]);
+      if (nearby.direction[Object.keys(nearby.direction)[getOpposite(i)]] === true) {
+        return;
+      }
+    }
+
+    // place structure;
+    grid[prev.x][prev.y].elem = structure;
+    drawStructure(structure, prev.x, prev.y);
+    structurePicked = false;
+    structure = '';
   }
 }
 
@@ -161,6 +212,7 @@ function changeMode(){
 // it horizontally and/or vertically to grow it
 function mouseDragged() {
   if (!isInsideCanvas() || simulationHasStarted || menuOpen) { return; }
+  //if (!isInsideCanvas() || simulationHasStarted) { return; }
   let spot = grid[floor(mouseX / divisor)][floor(mouseY / divisor)];
   if (mouseButton === LEFT) {
     
@@ -199,7 +251,7 @@ function mouseDragged() {
 
 // do not take any inputs residing outside of the canvas
 function isInsideCanvas() {
-  if (mouseX < 0 || mouseX > (width - 1) || mouseY < 0 || mouseY > (height - 1)) {
+    if (mouseX < 0 || mouseX > (cols * divisor - 1) || mouseY < 0 || mouseY > (rows * divisor - 1)) {
     return false;
   } else {
     return true;
@@ -243,7 +295,6 @@ function drawArrow(x, y, degree) {
   realY = y * divisor;
   stroke('yellow');
   strokeWeight(3.5);
-  //strokeWeight(6);
   translate(realX + (divisor / 2), realY + (divisor / 2));        // set pivot of rotation
   rotate(degree);
   translate(-realX - (divisor / 2), -realY - (divisor / 2));      // reset pivot of rotation
@@ -282,7 +333,6 @@ function restoreLook() {
 }
 
 // Upon clicking the button, "Reset Simulation," return grid to initial state & remove cars
-// maybe add a comfirmation message later
 function resetGrid() {
   showMsg("reset");
   // reset toggle and remove cars
@@ -292,6 +342,12 @@ function resetGrid() {
     for (let j = 0; j < rows; ++j) {
       removeCar(carMap, i, j);
 
+      // delete structures besides 'R' and 'T'
+      if (grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
+        grid[i][j].elem = 'R';
+        grid[i][j].aTimer = 0;
+      }
+      
       // delete roads
       if (grid[i][j].elem === 'R' || grid[i][j].elem === 'T') {
         removeRoad(grid[i][j], true);
@@ -353,3 +409,19 @@ function IsIntersection(point){
 function randomInRange(min, max){
   return Math.floor(Math.random() * (max - min) + min);
 }
+
+// draw structure on road tile
+function drawStructure(structure, x, y) {
+  switch (structure) {
+    case 'R':
+    case 'T':
+      image(roadImg, x * divisor + 1, y * divisor + 1);
+      return;
+    case 'S':         // Car Spawn Point
+      image(carSpawnGif, x * divisor + 1, y * divisor + 1);
+      return;
+  }
+}
+
+// TODO: signify selected structure on top right/left area of header (except for roads and traffic lights)
+// Allow user to cancel selected structure with ESC key

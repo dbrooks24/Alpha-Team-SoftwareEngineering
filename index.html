@@ -27,7 +27,7 @@
       <p id="pause" class="note msg hide">Simulation is now paused.</p>
       <p id="reset" class="note msg hide">Simulation reseted.</p>
       <p id="err0" class="err msg hide">
-        You must create at least one complete road before changing modes.
+        You must create at least one complete road to an edge before changing modes.
       </p>
       <div class="sliderWrapper">
         <label class="switch">
@@ -39,7 +39,7 @@
         <circle id="dot-circle" cx="8" cy="8" r="6" fill="#72e730"></circle>
       </svg>
       <div class="timer"></div>
-      <button id="resetBtn" class="resetBtn" onclick="resetGrid()">
+      <button id="resetBtn" class="resetBtn" onclick="resetGrid()" tabindex="-1">
         RESET
       </button>
     </div>
@@ -66,14 +66,14 @@
             Config
           </button>
           <button
-          id="Config"
+          id="Save/Upload"
           class="btn btn-link"
           onclick="showModal('Save/Upload')"
           data-bs-toggle="modal"
           data-bs-target="#info-modal"
-        >
-          Save/Upload
-        </button>
+          >
+            Save/Upload
+          </button>
           <button
             id="About"
             class="btn btn-link"
@@ -83,9 +83,27 @@
           >
             About
           </button>
+          <button
+          id="Credits"
+          class="btn btn-link"
+          onclick="showModal('Credits')"
+          data-bs-toggle="modal"
+          data-bs-target="#info-modal"
+          >
+            Credits
+          </button>
         </div>
       </div>
-      <div id="CanvasParent" class="p-0 mx-0"></div>
+      <div id="canvasArea">
+        <div id="CanvasParent" class="p-0 mx-0"></div>
+        <div id="structureMenu" class="menuSlide">
+          <div id="structContents" class ="transparent">
+            <div><img id="carSpawn" src="images/carSpawn.gif"/>Car Spawn
+            <!--<div><img id="carSpawn" src="images/carSpawn.gif"/>Some Structure Name Here-->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- Info Modal Start -->
     <div

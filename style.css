@@ -98,6 +98,7 @@ cursor: pointer;
 }
 
 .resetBtn {
+  user-select: none;
   border: none;
   background: #f17e97;
   position: absolute;
@@ -273,4 +274,57 @@ div.sliderWrapper {
 #applyBtn:hover {
   border-color: #f57994;
   background: #f3587a;
+}
+
+/* structure list window */
+#canvasArea {
+  position: relative;
+}
+
+#structureMenu {
+  display: flex;
+  position: absolute;
+  height: 96%;
+  top: 0;
+  right: 0;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: width 0.75s;
+  overflow-x: hidden;
+  width: 2%;
+  z-index: 2;
+}
+
+#structureMenu::after {
+  content: '\2BC7';
+  font-weight: bold;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+
+.menuSlide {
+  position: fixed;
+  right: 2%;
+  top: 0;
+  background: #6047ec;
+  padding: 5px;
+}
+
+#structContents {
+  display: flex;
+  position: relative;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: width 0.75s;
+  height: 100%;
+  right: 0;
+  width:0px;
+  overflow-x: hidden;
+}
+
+#container img {
+  max-width: 37px;
+  max-height: 37px;
+  padding: 2px;
 }
