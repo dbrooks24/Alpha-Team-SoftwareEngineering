@@ -56,6 +56,7 @@ function setup() {
       image(grid[i][j].image, i * divisor + 1, j * divisor + 1);
     }
   }
+  trafficCR = []; //traffic centeral controller
   canvas2 = createGraphics(cols * divisor, rows * divisor);
   angleMode(DEGREES);
   frameRate(18);    // may have to increase for smoother movement for cars
@@ -83,13 +84,13 @@ function draw() {
           }
         }
       } 
-      if(grid[i][j].elem === 'T') { 
-        if((millis() > grid[i][j].trafficFlowInterval) && (simulationHasStarted)){
-          grid[i][j].changeCurrentInput();
-          grid[i][j].updateInterval();
-        }
-        drawTrafficLight(grid[i][j]);
-      }
+      // if(grid[i][j].elem === 'T') { 
+      //   if((millis() > grid[i][j].trafficFlowInterval) && (simulationHasStarted)){
+      //     grid[i][j].changeCurrentInput();
+      //     grid[i][j].updateInterval();
+      //   }
+      //   drawTrafficLight(grid[i][j]);
+      // }
       //drawing cars 
       if(carMap[i][j] != undefined){
         if(carMap[i][j].isAtAnExit()){
@@ -119,6 +120,14 @@ function draw() {
           }
       }
       }
+    }
+    
+  }
+  for(let i = 0; i < trafficCR.length; ++i){
+    trafficCR[i].draw();
+    if((millis() > trafficCR[i].trafficFlowInterval) && (simulationHasStarted)){
+      trafficCR[i].changeCurrentInput();
+      trafficCR[i].updateInterval();
     }
   }
 }
@@ -158,11 +167,11 @@ function mousePressed() {
       carMap[i][j].draw();
     }
     // toggle traffic lights
-    if (grid[i][j].elem === 'T') {
-      grid[i][j].changeCurrentInput();
-      grid[i][j].updateInterval();
-      drawTrafficLight(grid[i][j]);
-    }
+    // if (grid[i][j].elem === 'T') {
+    //   grid[i][j].changeCurrentInput();
+    //   grid[i][j].updateInterval();
+    //   drawTrafficLight(grid[i][j]);
+    // }
   } else if (structurePicked && !simulationHasStarted && structure !== '' && (grid[prev.x][prev.y].elem === 'R')) { // structure placement
 
     // structures must be placed on road tiles where no other road tiles go into
@@ -233,11 +242,11 @@ function mouseDragged() {
       if(spot.elem === 'T'){
         if(!IsIntersection(spot)){
           spot.elem = 'R'
-          spot.removeTrafficLightProperties();
+          removeTrafficLight(trafficCR, spot);
         }
       }else if(IsIntersection(spot)){
         spot.elem = 'T';
-        spot.addTrafficLightProperties();
+        addTrafficLight(trafficCR, spot);
       }
       //update the vehicles referenced coordinate when the directions of a coordinate changes
       if(carMap[prev.x][prev.y] != undefined)
@@ -363,33 +372,6 @@ function resetGrid() {
     image(canvas2, 0, 0);
   }
 
-}
-
-function drawTrafficLight(point){
-  strokeWeight(1);
-  if(point.elem !== 'T') return;
-  let drawUp    = point => triangle(point.x * divisor + 4, point.y * divisor + 4, point.x * divisor  + 9.5, point.y * divisor  + 10, point.x * divisor + 15, point.y * divisor + 4);
-  let drawLeft  = point => triangle(point.x * divisor + 4, point.y * divisor + 4, point.x * divisor + 9.5, point.y * divisor + 10, point.x * divisor + 4, point.y * divisor + 15);
-  let drawRight = point => triangle(point.x * divisor + 15, point.y * divisor + 4, point.x * divisor + 9.5, point.y * divisor + 10, point.x * divisor + 15, point.y * divisor + 15);
-  let drawDown  = point => triangle(point.x * divisor + 4, point.y * divisor + 15, point.x * divisor  + 9.5, point.y * divisor + 10, point.x * divisor + 15, point.y * divisor + 15);
-  push();
-  if(point.trafficInputDirections.up){ 
-    if(point.currentInput == 'up'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
-    drawUp(point);
-  }
-  if(point.trafficInputDirections.left)  {
-    if(point.currentInput == 'left'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
-    drawLeft(point);
-  }
-  if(point.trafficInputDirections.right) {
-    if(point.currentInput == 'right'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
-    drawRight(point);
-  }
-  if(point.trafficInputDirections.down)  {
-    if(point.currentInput == 'down'){fill(0, 255, 0)} else {fill(255, 0, 0)} 
-    drawDown(point);
-  }
-  pop();
 }
 //a intersection is any point with traffic coming in from more than one direction
 function IsIntersection(point){

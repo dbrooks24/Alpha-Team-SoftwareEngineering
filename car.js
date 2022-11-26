@@ -6,7 +6,6 @@ class Car{
         this.image = img;
         this.dir = this.getrandomDirection();
         if (speed === undefined) speed = Math.floor(Math.random() * (Car.maxSpeed - Car.minSpeed + 1) + Car.minSpeed);
-        console.log(speed);
         if(speed < Car.minSpeed) speed = Car.minSpeed;
         if(speed > Car.maxSpeed) speed = Car.maxSpeed;
         this.speed = speed;

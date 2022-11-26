@@ -13,37 +13,30 @@ class coordinate {
   }
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(){
-    if(this.elem !== 'T') return;
-    this.trafficInputDirections = trafficInput(this);
-    this.trafficFlowInterval    = 0;
-    this.currentInput = undefined;
-    this.updateInterval = () => this.trafficFlowInterval = millis() + 3000;
-    this.changeCurrentInput = () => {
-      //find the next input direction in a clockwise manner
-      let nextDirection = ['up', 'right', 'down', 'left'];
-      let prevInput = this.currentInput;
-      let start = nextDirection.findIndex(i => i == this.currentInput);
-      let i = (start + 1) % nextDirection.length
-      while(i != start){
-        if(this.trafficInputDirections[nextDirection[i]]){
-          this.currentInput = nextDirection[i];
-          return;
-        }
-        ++i;
-        if(i == nextDirection.length) i = 0;
+      this.elem = "T";
+      this.currentInput = undefined;
+      this.trafficInputDirections = trafficInput(this);
+      this.changeCurrentInput = ()=>{
+          //find the next input direction in a clockwise manner
+          let nextDirection = ['up', 'right', 'down', 'left'];
+          let start = nextDirection.findIndex(i => i == this.currentInput);
+          let i = (start + 1) % nextDirection.length;
+          while(i != start){
+            if(this.trafficInputDirections[nextDirection[i]]){
+              this.currentInput = nextDirection[i];
+              return;
+            }
+            ++i;
+            if(i == nextDirection.length) i = 0;
+          }
       }
-    }
-    this.currentInput =  this.changeCurrentInput();
+      this.changeCurrentInput();
   }
   removeTrafficLightProperties(){
     if(this.elem !== 'T') return;
+    this.currentInput = undefined;
     this.trafficInputDirections = undefined;
-    this.trafficFlowInterval    = undefined;
-    this.currentInput           = undefined;
-    this.updateInterval         = undefined;
-    this.changeCurrentInput     = undefined;
   }
-  // fetch a single neighbor in the given direction (given as 'way')
   seeNeighbor(way) {
     switch (way) {
       case "up":
