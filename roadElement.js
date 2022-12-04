@@ -14,24 +14,25 @@ class coordinate {
     this.parentEdge = undefined;
     }
   //properties to be added only to traffic light coordinates
-  addTrafficLightProperties(){
+  addTrafficLightProperties(prev){
     if(this.elem !== 'T') return;
     this.adjacencyList = [];
+    this.reverseAdjacencyList = [];
     this.routableExits = [];
     //notify the the traffic light that leads to here about the new vetex(traffic light)
     let p = this.parentTrafficLight;
-    console.log(this.parentTrafficLight);
-    if(p != undefined){
-      grid[this.x][p.y].adjacencyList.push({endVertex: this, edgeDirection: this.parentEdge})//edgeDirection == 'left' || 'right' || 'down' || 'up' which is the parent vertex's edge that leads to this coordinate
-      this.adjacencyList.push({endVertex: this, edge: this.parentEdge});
+    if(p != undefined){//update parent when a new traffic light is made
+      //directed graph
+      grid[p.x][p.y].adjacencyList.push({endVertex: this, outgoingEdge: this.parentEdge})//edgeDirection == 'left' || 'right' || 'down' || 'up' which is the parent vertex's edge that leads to this coordinate
+      this.reverseAdjacencyList.push({endVertex: p, outgoingEdge: this.parentEdge});//used to back track the parent vertices
     }
-    if(p != undefined){
-      console.log(this.parentTrafficLight.x, "-", this.parentTrafficLight.y);
-    }else{
-      console.log("no parent");
+    let prevP = prev.parentTrafficLight;
+    if(prevP != undefined){
+      grid[prevP.x][prevP.y].adjacencyList.push({endVertex: this, outgoingEdge: prev.parentEdge});
+      this.reverseAdjacencyList.push({endVertex: prevP, outgoingEdge: prev.parentEdge});//used to back track the parent vertices
     }
     //traffic lights do not have parent vertices(traffic lights)
-    this.parentTrafficLight = this;
+    this.parentTrafficLight = this;         
     this.parentEdge = undefined;
 
     this.trafficInputDirections = trafficInput(this);
@@ -136,8 +137,6 @@ function assignDirection(initial, current) {
     } else {
       initial.direction[Object.keys(initial.direction)[index]] = false;
     }
-    current.parentTrafficLight = current.parentTrafficLight;
-    current.parentEdge         = initial.parentEdge;
   }
 }
 

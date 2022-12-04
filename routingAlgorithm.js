@@ -4,19 +4,21 @@ const VISITED     = "VISITED";
 //Time complexity O(4v * 4e), where v is the number of connected vertices and e is the sum v's edges;
 function CreateRoutesToExit(exit){
     let vertices = [];
+    
     getConnectedVertices(exit.parentTrafficLight, vertices);
     console.log(vertices);
     removeLabels(vertices);//remove all the labels that were added from getConnectedVertices()
     for(let vertex of vertices){
         createRoute(vertex, exit);//all conntected vertices also lead to this exit
     }
+    console.log(vertices);
     removeLabels(vertices);
-    printRoutableExits(vertices);
+    // printRoutableExits(vertices);
 }
 function printRoutableExits(vertices){
     for(let v of vertices){
         for(let exit of v.routableExits){
-            console.log("V:", v.x+"-"+v.y, "Exit:", exit.x+"-"+exit.y);
+            console.log("V:", v.x+"-"+v.y, "Exit:", exit);
         }
     }
 }
@@ -24,20 +26,20 @@ function printRoutableExits(vertices){
 function createRoute(vertex, exit){
     let nextVertices = [];//acts like a queue in this context.
     nextVertices.push(vertex);
-    console.log(vertex);
-    console.log(vertex.adjacencyList);
+
     while(nextVertices.length != 0){
         let v = nextVertices.shift();
         for(let edge of v.adjacencyList){
             if(edge.label == UNEXPLORED){
+                edge.label = VISITED;
                 let oppositeVertex = edge.endVertex;
                 if(oppositeVertex.label == UNEXPLORED){
-                    oppositeVertex.label = VISITED;
-                    vertex.routableExits.push({exit: exit, edgeDirection:edge.edgeDirection});
+                    //oppositeVertex.label = VISITED;
+                    v.routableExits.push({exit: exit, outgoingEdge:edge.outgoingEdge});
                     nextVertices.push(oppositeVertex);
                 }
             }
-            edge.label = UNEXPLORED;
+            edge.label = VISITED;
         }
     }    
 }
@@ -46,10 +48,12 @@ function createRoute(vertex, exit){
 function getConnectedVertices(vertex, subgraph){
     vertex.label = VISITED;
     subgraph.push(vertex);
-    for(let edge of vertex.adjacencyList){
+    for(let edge of vertex.reverseAdjacencyList){
+        
         //undefined == unexplored
         if(edge.label == UNEXPLORED){
             let oppositeVertex = edge.endVertex;
+            
             if(oppositeVertex.label == UNEXPLORED){
                 getConnectedVertices(oppositeVertex, subgraph);
             }
