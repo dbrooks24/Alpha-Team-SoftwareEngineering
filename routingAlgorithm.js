@@ -4,15 +4,15 @@ const VISITED     = "VISITED";
 //Time complexity O(4v * 4e), where v is the number of connected vertices and e is the sum v's edges;
 function CreateRoutesToExit(exit){
     let vertices = [];
-    
     getConnectedVertices(exit.parentTrafficLight, vertices);
+    exit.parentTrafficLight.routableExits.push({exit:exit, outgoingEdge: exit.parentEdge});
     console.log(vertices);
-    removeLabels(vertices);//remove all the labels that were added from getConnectedVertices()
+    removeIncomingEdgesLabels(vertices);//remove all the labels that were added from getConnectedVertices()
     for(let vertex of vertices){
         createRoute(vertex, exit);//all conntected vertices also lead to this exit
     }
     console.log(vertices);
-    removeLabels(vertices);
+    removeOutgoingEdgesLabels(vertices);
     // printRoutableExits(vertices);
 }
 function printRoutableExits(vertices){
@@ -29,7 +29,7 @@ function createRoute(vertex, exit){
 
     while(nextVertices.length != 0){
         let v = nextVertices.shift();
-        for(let edge of v.adjacencyList){
+        for(let edge of v.outgoingEdges){
             if(edge.label == UNEXPLORED){
                 edge.label = VISITED;
                 let oppositeVertex = edge.endVertex;
@@ -48,7 +48,7 @@ function createRoute(vertex, exit){
 function getConnectedVertices(vertex, subgraph){
     vertex.label = VISITED;
     subgraph.push(vertex);
-    for(let edge of vertex.reverseAdjacencyList){
+    for(let edge of vertex.incomingEdges){
         
         //undefined == unexplored
         if(edge.label == UNEXPLORED){
@@ -62,10 +62,19 @@ function getConnectedVertices(vertex, subgraph){
             
     }
 }
-function removeLabels(vertices){
+function removeIncomingEdgesLabels(vertices){
     for(let vertex of vertices){
         vertex.label = undefined;
-        for(let edge of vertex.adjacencyList){
+        for(let edge of vertex.incomingEdges){
+            edge.label = undefined;
+        }
+    }
+
+}
+function removeOutgoingEdgesLabels(vertices){
+    for(let vertex of vertices){
+        vertex.label = undefined;
+        for(let edge of vertex.outgoingEdges){
             edge.label = undefined;
         }
     }
@@ -73,7 +82,7 @@ function removeLabels(vertices){
 }
 function setEdgeLabels(vertices, label){
     for(let vertex of vertices){
-        for(edge in vertex.adjacencyList){
+        for(edge in vertex.outgoingEdges){
             edge.label = label
         }
     }

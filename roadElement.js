@@ -16,20 +16,20 @@ class coordinate {
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(prev){
     if(this.elem !== 'T') return;
-    this.adjacencyList = [];
-    this.reverseAdjacencyList = [];
+    this.outgoingEdges = [];
+    this.incomingEdges = [];
     this.routableExits = [];
     //notify the the traffic light that leads to here about the new vetex(traffic light)
     let p = this.parentTrafficLight;
     if(p != undefined){//update parent when a new traffic light is made
       //directed graph
-      grid[p.x][p.y].adjacencyList.push({endVertex: this, outgoingEdge: this.parentEdge})//edgeDirection == 'left' || 'right' || 'down' || 'up' which is the parent vertex's edge that leads to this coordinate
-      this.reverseAdjacencyList.push({endVertex: p, outgoingEdge: this.parentEdge});//used to back track the parent vertices
+      grid[p.x][p.y].outgoingEdges.push({endVertex: this, outgoingEdge: this.parentEdge})//edgeDirection == 'left' || 'right' || 'down' || 'up' which is the parent vertex's edge that leads to this coordinate
+      this.incomingEdges.push({endVertex: p, outgoingEdge: this.parentEdge});//used to back track the parent vertices
     }
     let prevP = prev.parentTrafficLight;
     if(prevP != undefined){
-      grid[prevP.x][prevP.y].adjacencyList.push({endVertex: this, outgoingEdge: prev.parentEdge});
-      this.reverseAdjacencyList.push({endVertex: prevP, outgoingEdge: prev.parentEdge});//used to back track the parent vertices
+      grid[prevP.x][prevP.y].outgoingEdges.push({endVertex: this, outgoingEdge: prev.parentEdge});
+      this.incomingEdges.push({endVertex: prevP, outgoingEdge: prev.parentEdge});//used to back track the parent vertices
     }
     //traffic lights do not have parent vertices(traffic lights)
     this.parentTrafficLight = this;         
@@ -63,7 +63,7 @@ class coordinate {
     this.currentInput           = undefined;
     this.updateInterval         = undefined;
     this.changeCurrentInput     = undefined;
-    this.adjacencyList          = undefined;
+    this.outgoingEdges          = undefined;
     this.routableExits          = undefined;
   }
   // fetch a single neighbor in the given direction (given as 'way')
