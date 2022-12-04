@@ -10,10 +10,30 @@ class coordinate {
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
     this.updated = true;
     this.aTimer = 0;
-  }
+    this.parentTrafficLight = undefined;//the traffic light that leads to this tile. It should be called on only elements of type "R"
+    this.parentEdge = undefined;
+    }
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(){
     if(this.elem !== 'T') return;
+    this.adjacencyList = [];
+    this.routableExits = [];
+    //notify the the traffic light that leads to here about the new vetex(traffic light)
+    let p = this.parentTrafficLight;
+    console.log(this.parentTrafficLight);
+    if(p != undefined){
+      grid[this.x][p.y].adjacencyList.push({endVertex: this, edgeDirection: this.parentEdge})//edgeDirection == 'left' || 'right' || 'down' || 'up' which is the parent vertex's edge that leads to this coordinate
+      this.adjacencyList.push({endVertex: this, edge: this.parentEdge});
+    }
+    if(p != undefined){
+      console.log(this.parentTrafficLight.x, "-", this.parentTrafficLight.y);
+    }else{
+      console.log("no parent");
+    }
+    //traffic lights do not have parent vertices(traffic lights)
+    this.parentTrafficLight = this;
+    this.parentEdge = undefined;
+
     this.trafficInputDirections = trafficInput(this);
     this.trafficFlowInterval    = 0;
     this.currentInput = undefined;
@@ -42,6 +62,8 @@ class coordinate {
     this.currentInput           = undefined;
     this.updateInterval         = undefined;
     this.changeCurrentInput     = undefined;
+    this.adjacencyList          = undefined;
+    this.routableExits          = undefined;
   }
   // fetch a single neighbor in the given direction (given as 'way')
   seeNeighbor(way) {
@@ -110,9 +132,12 @@ function assignDirection(initial, current) {
         (current.direction[Object.keys(current.direction)[opposite]] != true)) {
       initial.direction[Object.keys(initial.direction)[index]] = true;
       initial.updated = false;
+      if(initial.elem == "T") initial.parentEdge = Object.keys(initial.direction)[index];
     } else {
       initial.direction[Object.keys(initial.direction)[index]] = false;
     }
+    current.parentTrafficLight = current.parentTrafficLight;
+    current.parentEdge         = initial.parentEdge;
   }
 }
 
@@ -188,4 +213,14 @@ function trafficInput(point){
       if(grid[point.x][point.y + 1].direction.up){result.down = true;}
     }
     return result;
+}
+function isAnExit(point){
+  let noValidDirection = true;
+  for(const value of Object.values(point.direction)){
+    if(value === true){
+        noValidDirection = false;
+        break;
+    }
+  }
+  return isEdge(point) && noValidDirection;
 }

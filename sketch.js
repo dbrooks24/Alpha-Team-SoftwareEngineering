@@ -226,18 +226,30 @@ function mouseDragged() {
       spot.neighbors = getNeighbors(spot);
       
       assignDirection(prev, spot);    // assign direction according to the newly added route
+      if(spot.parentTrafficLight!= undefined)
+      console.log(spot.parentTrafficLight.x, "-", spot.parentTrafficLight.y);
       colorGrid(prev, 0, true);       // removes paint residue from arrows when removing connectivity (while holding tab)
       colorGrid(spot, 0, true);
-
+      if(spot.parentTrafficLight!= undefined)
+        console.log(spot.parentTrafficLight.x, "-", spot.parentTrafficLight.y);
       //change the element type from R to T if the road has become a intersection
       if(spot.elem === 'T'){
         if(!IsIntersection(spot)){
-          spot.elem = 'R'
+          spot.elem = 'R';
           spot.removeTrafficLightProperties();
+          console.log(spot.x, spot.y)
         }
+
       }else if(IsIntersection(spot)){
+        console.log(spot.parentTrafficLight, spot);
+        if(spot.parentTrafficLight!= undefined)
+          console.log(spot.parentTrafficLight.x, "-", spot.parentTrafficLight.y);
         spot.elem = 'T';
         spot.addTrafficLightProperties();
+
+      }
+      if(isAnExit(spot)){
+        CreateRoutesToExit  (spot);
       }
       //update the vehicles referenced coordinate when the directions of a coordinate changes
       if(carMap[prev.x][prev.y] != undefined)
