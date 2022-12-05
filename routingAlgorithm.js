@@ -1,68 +1,32 @@
 const UNEXPLORED = undefined;
 const VISITED     = "VISITED";
 
-//Time complexity O(4v * 4e), where v is the number of connected vertices and e is the sum v's edges;
+//Time complexity O(2e), where e is the number of edges in the subgraph;
 function CreateRoutesToExit(exit){
     let vertices = [];
-    getConnectedVertices(exit.parentTrafficLight, vertices);
-    exit.parentTrafficLight.routableExits.push({exit:exit, outgoingEdge: exit.parentEdge});
+    createRoute(exit.parentVertex, exit, vertices);
+    exit.parentVertex.routableExits.push({exit:exit, outgoingEdge: exit.parentEdge});
     console.log(vertices);
-    removeIncomingEdgesLabels(vertices);//remove all the labels that were added from getConnectedVertices()
-    for(let vertex of vertices){
-        createRoute(vertex, exit);//all conntected vertices also lead to this exit
-    }
-    console.log(vertices);
-    removeOutgoingEdgesLabels(vertices);
-    // printRoutableExits(vertices);
+    removeLabels(vertices);//remove all the labels that were added from getConnectedVertices()
 }
-function printRoutableExits(vertices){
-    for(let v of vertices){
-        for(let exit of v.routableExits){
-            console.log("V:", v.x+"-"+v.y, "Exit:", exit);
-        }
-    }
-}
-//performs a breadth-first search to notify all connected vertices about the exit
-function createRoute(vertex, exit){
-    let nextVertices = [];//acts like a queue in this context.
-    nextVertices.push(vertex);
-
-    while(nextVertices.length != 0){
-        let v = nextVertices.shift();
-        for(let edge of v.outgoingEdges){
-            if(edge.label == UNEXPLORED){
-                edge.label = VISITED;
-                let oppositeVertex = edge.endVertex;
-                if(oppositeVertex.label == UNEXPLORED){
-                    //oppositeVertex.label = VISITED;
-                    v.routableExits.push({exit: exit, outgoingEdge:edge.outgoingEdge});
-                    nextVertices.push(oppositeVertex);
-                }
-            }
-            edge.label = VISITED;
-        }
-    }    
-}
-//can be more efficent with a better data structure for the traffic lights
-//returns a subgraph of all the connected traffic lights using a depth-first search 
-function getConnectedVertices(vertex, subgraph){
+function createRoute(vertex, exit, subgraph){
+    console.log(vertex);
     vertex.label = VISITED;
     subgraph.push(vertex);
     for(let edge of vertex.incomingEdges){
-        
-        //undefined == unexplored
         if(edge.label == UNEXPLORED){
-            let oppositeVertex = edge.endVertex;
-            
-            if(oppositeVertex.label == UNEXPLORED){
-                getConnectedVertices(oppositeVertex, subgraph);
-            }
             edge.label = VISITED;
+            let oppositeVertex = edge.endVertex;
+            oppositeVertex.routableExits.push({exit: exit, outgoingEdge:edge.outgoingEdge});
+            if(oppositeVertex.label == UNEXPLORED){
+                oppositeVertex.label = VISITED;
+                createRoute(oppositeVertex,exit, subgraph);
+            }
         }
             
     }
 }
-function removeIncomingEdgesLabels(vertices){
+function removeLabels(vertices){
     for(let vertex of vertices){
         vertex.label = undefined;
         for(let edge of vertex.incomingEdges){
@@ -80,10 +44,50 @@ function removeOutgoingEdgesLabels(vertices){
     }
 
 }
-function setEdgeLabels(vertices, label){
-    for(let vertex of vertices){
-        for(edge in vertex.outgoingEdges){
-            edge.label = label
+function isASplittingRoad(point){
+    if(point.elem == "T")return false;//Traffic lights are not to be considered
+    let isSplitting = false;    
+    let count = 0;
+    for(let dir of Object.values(point.direction)){
+        if(dir) ++count;
+        if(count >= 2){
+            isSplitting = true;
+            break;
         }
     }
+    return isSplitting;
 }
+//INPUTS: the coodinate, traffic light or splitting road, to add the vertex properties to.
+//        the road directly before this one
+function addVertexProperties(point, prev){
+    point.outgoingEdges = [];
+    point.incomingEdges = [];
+    point.routableExits = [];
+
+    //update parent vertex about the new vertex
+    let p = point.parentVertex;
+    if(p != undefined){//update parent when a vertex light is made. if the parentVertex exists.
+      //directed graph
+      grid[p.x][p.y].outgoingEdges.push({endVertex: point, outgoingEdge: point.parentEdge})//outgoingEdge == a direction.
+      point.incomingEdges.push({endVertex: p, outgoingEdge: point.parentEdge});//used to back track the parent vertices
+    }
+    if(prev != undefined){//splitting roads do not have a prev edge
+        let prevP = prev.parentVertex;
+        if(prevP != undefined){//if the previous point has a a parent then notify its parent about the new vertex
+            grid[prevP.x][prevP.y].outgoingEdges.push({endVertex: point, outgoingEdge: prev.parentEdge});
+            point.incomingEdges.push({endVertex: prevP, outgoingEdge: prev.parentEdge});//used to back track the parent vertices
+        }  
+    }
+
+    //vertices do not have parent vertices
+    point.parentVertex = point;         
+    point.parentEdge = undefined;
+}
+
+// function printRoutableExits(vertices){
+//     for(let v of vertices){
+//         for(let exit of v.routableExits){
+//             console.log("V:", v.x+"-"+v.y, "Exit:", exit);
+//         }
+//     }
+// }

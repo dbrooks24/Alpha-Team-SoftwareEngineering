@@ -10,30 +10,14 @@ class coordinate {
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
     this.updated = true;
     this.aTimer = 0;
-    this.parentTrafficLight = undefined;//the traffic light that leads to this tile. It should be called on only elements of type "R"
+    this.parentVertex = undefined;//the traffic light that leads to this tile. It should be called on only elements of type "R"
     this.parentEdge = undefined;
     }
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(prev){
     if(this.elem !== 'T') return;
-    this.outgoingEdges = [];
-    this.incomingEdges = [];
-    this.routableExits = [];
-    //notify the the traffic light that leads to here about the new vetex(traffic light)
-    let p = this.parentTrafficLight;
-    if(p != undefined){//update parent when a new traffic light is made
-      //directed graph
-      grid[p.x][p.y].outgoingEdges.push({endVertex: this, outgoingEdge: this.parentEdge})//edgeDirection == 'left' || 'right' || 'down' || 'up' which is the parent vertex's edge that leads to this coordinate
-      this.incomingEdges.push({endVertex: p, outgoingEdge: this.parentEdge});//used to back track the parent vertices
-    }
-    let prevP = prev.parentTrafficLight;
-    if(prevP != undefined){
-      grid[prevP.x][prevP.y].outgoingEdges.push({endVertex: this, outgoingEdge: prev.parentEdge});
-      this.incomingEdges.push({endVertex: prevP, outgoingEdge: prev.parentEdge});//used to back track the parent vertices
-    }
-    //traffic lights do not have parent vertices(traffic lights)
-    this.parentTrafficLight = this;         
-    this.parentEdge = undefined;
+
+    addVertexProperties(this, prev);
 
     this.trafficInputDirections = trafficInput(this);
     this.trafficFlowInterval    = 0;
@@ -142,7 +126,7 @@ function assignDirection(initial, current) {
 
 // remove a road by simply right-clicking it (can't drag & delete multiple roads)
 function removeRoad(point, reset = false) {
-  if (((point.elem != 'R') && (point.elem != 'T')) || (carMap[point.x][point.y] != undefined)) { return; }
+  if (point.elem =="B" || (carMap[point.x][point.y] != undefined)) { return; }
   for (let i = 0; (i < 4) && (reset === false); ++i) {            // if intermediate road, don't delete
     if (point.direction[Object.keys(point.direction)[i]] === true) {
       return;

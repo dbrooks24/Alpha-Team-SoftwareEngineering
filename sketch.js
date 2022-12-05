@@ -68,7 +68,7 @@ function draw() {
     for (let j = 0; j < rows; ++j) {
         
       // drawing road tiles
-      if ((grid[i][j].elem === "R" || grid[i][j].elem === "T") && (grid[i][j].updated === false) && (carMap[i][j] === undefined)) {
+      if ((grid[i][j].elem !="B") && (grid[i][j].updated === false) && (carMap[i][j] === undefined)) {
         image(roadImg, i * divisor + 1, j * divisor + 1);
         grid[i][j].updated = true;
 
@@ -107,7 +107,7 @@ function draw() {
       }
 
       // drawing structures
-      if (grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
+      if (grid[i][j] !== "SR" && grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
         drawStructure(grid[i][j].elem, i, j);
         if (keyIsDown(TAB)) {
           displayDirections(i, j);
@@ -141,7 +141,7 @@ function mousePressed() {
   prev = grid[floor(mouseX / divisor)][floor(mouseY / divisor)];
   if (mouseButton === RIGHT) {
     if(!simulationHasStarted) {
-      if (grid[prev.x][prev.y].elem !== 'R' && grid[prev.x][prev.y].elem !== 'T' && grid[prev.x][prev.y].elem !== 'B') { // remove structure
+      if (grid[prev.x][prev.y].elem !== 'R' && grid[prev.x][prev.y].elem !== 'T' && grid[prev.x][prev.y].elem !== 'B' && grid[prev.x][prev.y].elem !== 'SR') { // remove structure
         grid[prev.x][prev.y].elem = 'R';
         grid[prev.x][prev.y].updated = false;
         grid[prev.x][prev.y].timer = 0;
@@ -217,7 +217,7 @@ function mouseDragged() {
   if (mouseButton === LEFT) {
     
     // create a new road if a 'B'-tile is clicked; otherwise, grow an existing road
-    if ((spot.elem != 'R' && spot.elem != 'T') && (areEqual(prev, spot))) {
+    if ((spot.elem == "B") && (areEqual(prev, spot))) {
       if(spot.elem ===  'B') spot.elem = 'R';
       spot.neighbors = getNeighbors(spot);
       spot.updated = false;
@@ -228,8 +228,6 @@ function mouseDragged() {
       assignDirection(prev, spot);    // assign direction according to the newly added route
       colorGrid(prev, 0, true);       // removes paint residue from arrows when removing connectivity (while holding tab)
       colorGrid(spot, 0, true);
-      if(spot.parentTrafficLight!= undefined)
-        console.log(spot.parentTrafficLight.x, "-", spot.parentTrafficLight.y);
       //change the element type from R to T if the road has become a intersection
       if(spot.elem === 'T'){
         if(!IsIntersection(spot)){
@@ -239,13 +237,18 @@ function mouseDragged() {
         }
       }else if(IsIntersection(spot)){
         spot.elem = 'T';
-        // spot.parentTrafficLight = prev.parentTrafficLight;
+        // spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
         spot.addTrafficLightProperties(prev);
 
       }
+      if(isASplittingRoad(prev)){
+        addVertexProperties(prev, undefined);
+        console.log("Here");
+        prev.elem = "SR"; //splitting Road
+      }
       if(spot.elem == "R"){
-        spot.parentTrafficLight = prev.parentTrafficLight;
+        spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
       }
       if(isAnExit(spot)){
@@ -328,7 +331,7 @@ function keyReleased() {
 function restoreLook() {
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
-      if ((grid[i][j].elem == 'R') || (grid[i][j].elem === 'T')) {
+      if (                  grid[i][j].elem !="B") {
         grid[i][j].updated = false;
         colorGrid(grid[i][j], 0, true);
       } else {
@@ -361,7 +364,7 @@ function resetGrid() {
       }
       
       // delete roads
-      if (grid[i][j].elem === 'R' || grid[i][j].elem === 'T') {
+      if (grid[i][j].elem === 'R' || grid[i][j].elem === 'T' || grid[i][j].elem == "SR") {
         removeRoad(grid[i][j], true);
       }
     }
@@ -427,6 +430,7 @@ function drawStructure(structure, x, y) {
   switch (structure) {
     case 'R':
     case 'T':
+    case 'SR':
       image(roadImg, x * divisor + 1, y * divisor + 1);
       return;
     case 'S':         // Car Spawn Point
