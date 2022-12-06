@@ -1,16 +1,18 @@
 class Car{
     static maxSpeed = 10; //speed is represented by tiles per second.
     static minSpeed = 4;
+    static randomRouting = false;
     constructor(startingCoordinate, img, speed= undefined){
         this.coordinate = startingCoordinate;
         this.image = img;
         this.dir = this.getrandomDirection();
         if (speed === undefined) speed = Math.floor(Math.random() * (Car.maxSpeed - Car.minSpeed + 1) + Car.minSpeed);
-        console.log(speed);
+
         if(speed < Car.minSpeed) speed = Car.minSpeed;
         if(speed > Car.maxSpeed) speed = Car.maxSpeed;
         this.speed = speed;
         this.moveInterval = 0;
+        this.assignedExit = undefined;
     }
     //removes a car if a car is on a edge coordinate and is headed outside of the map
     isAtAnExit(){
@@ -67,11 +69,66 @@ class Car{
         if(options.length === 0) return -1;
         return options[Math.floor(Math.random() * options.length)];
     }
+    getAssignedDirection(vertex){
+        for(let exit of vertex.routableExits){
+            if(exit.exit.x == this.assignedExit.x && exit.exit.y == this.assignedExit.y){
+                return exit.outgoingEdge;
+            }
+        }
+        console.log("no assigned direction");
+        return -1;
+        
+    }
 }
 //move a car from one coordinate one of its neighbors
 function moveCar(grid, map, i,j){
+    if(Car.randomRouting){
+        randomlyMoveCar(grid, map, i, j);
+    }else{
+        assignedRouting(grid, map, i, j);
+    }
+}
+function assignedRouting(grid, map, i, j){
     let car = map[i][j];//car is a reference
-    if(car.dir === -1) car.dir = car.getrandomDirection();
+    let nextCoordinate =car.coordinate.seeNeighbor(car.dir);
+    //console.log(car.dir, nextCoordinate);
+    console.log(car.dir);
+    if(nextCoordinate != -1 && nextCoordinate.elem != 'B' && map[nextCoordinate.x][nextCoordinate.y] == undefined){
+            if(grid[nextCoordinate.x][nextCoordinate.y].elem === 'T' && grid[nextCoordinate.x][nextCoordinate.y].currentInput != getOppositeDirection(car.dir)){
+                return;
+            }
+        
+        let nextdir = car.dir;
+        if(car.assignedExit == undefined){
+            car.assignedExit = getExit(nextCoordinate);
+        }
+        if((nextCoordinate.elem == "T" || nextCoordinate.elem == "SR") && car.assignedExit != undefined){
+            console.log("nextDirection", nextCoordinate);
+            nextdir = car.getAssignedDirection(nextCoordinate);
+        }
+        else
+        {
+            randomlyMoveCar(grid, map, i, j);
+            return;
+        }
+      
+        // if(car.assignedExit == undefined || nextdir == -1 ){
+        //     randomlyMoveCar(grid, map, i, j);
+        //     return;
+        // }
+        car.setCoordinate(nextCoordinate);
+        map[nextCoordinate.x][nextCoordinate.y] = map[i][j];      //moving vehicle to its neighboring tile
+        removeCar(map, i,j);
+        //colorGrid(nextCoordinate, color(0, 0, 200, 200));         // color the next position of the car
+        car.draw();
+        car.updateInterval();
+        car.dir = nextdir;
+    }
+
+}
+function randomlyMoveCar(grid, map, i, j){
+    let car = map[i][j];//car is a reference
+    if(car.dir === -1 ) car.dir = car.getrandomDirection();
     let nextCoordinate =car.coordinate.seeNeighbor(car.dir);
     //only move a car when the next tile is free and the neighbor is not an outlier 
     if(nextCoordinate != -1 && nextCoordinate.elem != 'B' && map[nextCoordinate.x][nextCoordinate.y] == undefined){
@@ -79,15 +136,15 @@ function moveCar(grid, map, i,j){
             return;
         }
 
-        car.setCoordinate(nextCoordinate);        
+        car.setCoordinate(nextCoordinate);
         map[nextCoordinate.x][nextCoordinate.y] = map[i][j];      //moving vehicle to its neighboring tile
         removeCar(map, i,j);
+        //colorGrid(nextCoordinate, color(0, 0, 200, 200));         // color the next position of the car
         car.draw();
         car.updateInterval();
         car.dir = car.getrandomDirection();
     }
 }
-
 // remove car and redraw the road tile
 function removeCar(map, i,j){
     if (map[i][j] === undefined) { return; }
@@ -105,3 +162,14 @@ function removeCar(map, i,j){
         }
     }
 }
+function getExit(vertex){
+    if(vertex.elem != "T" && vertex.elem != "SR") return;
+    if(vertex.routableExits.length != 0){
+        return vertex.routableExits[getRandomInt(vertex.routableExits.length)].exit;
+    }
+    
+    return undefined;
+}
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }

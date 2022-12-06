@@ -10,7 +10,6 @@ function CreateRoutesToExit(exit){
     removeLabels(vertices);//remove all the labels that were added from getConnectedVertices()
 }
 function createRoute(vertex, exit, subgraph){
-    console.log(vertex);
     vertex.label = VISITED;
     subgraph.push(vertex);
     for(let edge of vertex.incomingEdges){
@@ -57,6 +56,12 @@ function isASplittingRoad(point){
     }
     return isSplitting;
 }
+function getParentEdge(initial, current){
+  if(current.x == initial.x -1)  return 'left';
+  if(current.x == initial.x + 1) return 'right';
+  if(current.y == initial.y - 1) return 'up';
+  if(current.y == initial.y + 1) return 'down';
+}
 //INPUTS: the coodinate, traffic light or splitting road, to add the vertex properties to.
 //        the road directly before this one
 function addVertexProperties(point, prev){
@@ -84,10 +89,68 @@ function addVertexProperties(point, prev){
     point.parentEdge = undefined;
 }
 
-// function printRoutableExits(vertices){
-//     for(let v of vertices){
-//         for(let exit of v.routableExits){
-//             console.log("V:", v.x+"-"+v.y, "Exit:", exit);
-//         }
-//     }
-// }
+//MUST BE CALLED BEFORE POINT'S PARENT VERTEX VARIABLE IS UPDATED
+//handling merging points. When a new traffic light merges into a road, update all the rounding road tiles about the new parent vertex, and parent edge
+function handleMerge(point){
+//no need to label items since it finds the nearest vertex and stops
+    let neighboringRoads = [];
+    let oldParentVertex = point.parentVertex;
+
+    //point.incomingEdges.push({endVertex:point.parentVertex, outgoingEdge:})
+    for(let dir in point.direction){
+        if(point.direction[dir]){
+            let neighbor = point.seeNeighbor(dir);
+            if(neighbor.elem != "T" && neighbor.elem != "SR"){
+                
+                let newParentEdge = getParentEdge(point, neighbor);
+                console.log(newParentEdge);
+                updateRoadTileParent(neighbor, point, newParentEdge, oldParentVertex);
+            }else{
+                updateVertexEdge(neighbor, point, point, oldParentVertex);
+            }
+        }
+    }
+}
+
+//Depth-first search
+function updateRoadTileParent(point, newParentVertex, newParentEdge, oldParentVertex){
+    if(point.elem == "T" || point.elem == "SR"){
+        updateVertexEdge(point, newParentVertex, newParentEdge, oldParentVertex);
+        return;
+    }
+    if(isAnExit(point)){
+        newParentVertex.outgoingEdges.push({exit:point, outgoingEdge: newParentEdge})
+    }
+    point.parentEdge   = newParentEdge;
+    point.parentVertex = newParentVertex;
+    for(let dir in point.direction){
+        if(point.direction[dir]){
+            
+            let neighbor = point.seeNeighbor(dir);
+            
+            updateRoadTileParent(neighbor, newParentVertex, newParentEdge, oldParentVertex);
+        }
+    }
+}
+//neighboring road is the road tile that lead to this Vertex
+function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldParentVertex){
+    if(oldParentVertex == undefined  || currentVertex == undefined || newParentEdge == undefined || newParentVertex == undefined) return;
+    let index = currentVertex.incomingEdges.findIndex( edge => edge.endVertex == oldParentVertex);
+    currentVertex.incomingEdges[index].endVertex = newParentVertex;
+    currentVertex.incomingEdges[index].outgoingEdge = newParentEdge;
+
+    //not sure if I can manipulate it directly without using the gird
+    index = grid[oldParentVertex.x][oldParentVertex.y].outgoingEdges.findIndex( edge => edge.endVertex == currentVertex);
+
+     //no need to update the currentVertex.incomingEdges[i].outgoingEdge. it is the same
+    grid[oldParentVertex.x][oldParentVertex.y].outgoingEdges[index].endVertex = currentVertex;
+
+}
+function printVertices(vertices){
+    for(let v of vertices){
+        console.log("V:", v.x+"-"+v.y);
+        for(let edge of v.outgoingEdges){
+            console.log(edge);
+        }
+    }
+}

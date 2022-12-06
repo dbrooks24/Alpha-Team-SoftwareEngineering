@@ -16,8 +16,8 @@ class coordinate {
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(prev){
     if(this.elem !== 'T') return;
-
-    addVertexProperties(this, prev);
+      addVertexProperties(this, prev);
+ 
 
     this.trafficInputDirections = trafficInput(this);
     this.trafficFlowInterval    = 0;
@@ -117,7 +117,9 @@ function assignDirection(initial, current) {
         (current.direction[Object.keys(current.direction)[opposite]] != true)) {
       initial.direction[Object.keys(initial.direction)[index]] = true;
       initial.updated = false;
-      if(initial.elem == "T") initial.parentEdge = Object.keys(initial.direction)[index];
+      if(initial.elem == "T"){
+        initial.parentEdge = Object.keys(initial.direction)[index];
+      }
     } else {
       initial.direction[Object.keys(initial.direction)[index]] = false;
     }

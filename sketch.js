@@ -7,7 +7,6 @@ let vehicles;
 let simulationHasStarted = false, menuOpen = false ; // menuOpen is to prevent the user from interacting with the grid when menu is open
 let structurePicked = false, structure = '';         // enables structure placement
 let canvas2;                                         // enables dimming of screen
-
 // prepare car and road sprites
 let roadImg, grassImgs, carImgs, carSpawnGif;
 function preload() {
@@ -237,20 +236,26 @@ function mouseDragged() {
         }
       }else if(IsIntersection(spot)){
         spot.elem = 'T';
+        handleMerge(spot);
         // spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
         spot.addTrafficLightProperties(prev);
-
+        
       }
-      if(isASplittingRoad(prev)){
+      if(prev != undefined && isASplittingRoad(prev)){
+        handleMerge(prev);
+        
         addVertexProperties(prev, undefined);
-        console.log("Here");
+        prev.parentEdge = getParentEdge(prev, spot);
+        spot.parentEdge = prev.parentEdge;
+        spot.parentVertex = prev
         prev.elem = "SR"; //splitting Road
-      }
-      if(spot.elem == "R"){
+      }    
+      if(spot.elem == "R" && prev.elem != "SR"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
       }
+      //console.log(spot.parentEdge, spot.parentVertex);
       if(isAnExit(spot)){
         CreateRoutesToExit  (spot);
       }
