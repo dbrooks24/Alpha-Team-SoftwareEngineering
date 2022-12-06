@@ -18,6 +18,7 @@
     <script src="roadElement.js"></script>
     <script src="car.js"></script>
     <script src="routingAlgorithm.js"></script>
+    <script src="./p5.sound.min.js"></script>
     <title>Car Simulator</title>
   </head>
 
@@ -83,6 +84,13 @@
             data-bs-target="#info-modal"
           >
             About
+          </button>
+          <button 
+            id="musicBtn" 
+            class="btn btn-link" 
+            onclick="toggleMusic()" 
+            >
+            Toggle Music
           </button>
           <button
           id="Credits"
