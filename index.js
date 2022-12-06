@@ -6,16 +6,17 @@ const modal = document.getElementById("info-modal"); // Used for Instructions an
 const modalBody = document.querySelector(".modal-body");
 const modalCloseBtn = document.querySelector(".btn-close");
 const modalTitle = document.getElementById("info-modal-label");
-const dotCircle = document.getElementById('dot-circle');
-const timer = document.querySelector('.timer');
+const dotCircle = document.getElementById("dot-circle");
+const timer = document.querySelector(".timer");
 let startTimeout = null;
 let time = {
   ms: 0,
   sec: 0,
-  min: 0
+  min: 0,
 };
 
-const instructionsHtml = [     // Instructions section
+const instructionsHtml = [
+  // Instructions section
   `<div class="container">
     <ul class="text-info margin">
         <li>Press the <b>spacebar</b>, <b>enter</b>, or <b>toggle</b> to switch between <b>Road Editing</b> and <b>Begin Simulation</b> modes.</li>
@@ -34,7 +35,7 @@ const instructionsHtml = [     // Instructions section
                 <li><b>Left-click</b> a road tile with connectivity to create a single car entity.</li>
                 <li><b>Left-click</b> the traffic lights to toggle it.</li>
             </ul>
-    </ul></div>`
+    </ul></div>`,
 ].join("<br/>");
 
 // make the min and max SpeedInput default with current values
@@ -47,7 +48,7 @@ const configHtml = [
         <button id="applyBtn" onclick="applyChanges()">
             Apply
         </button><br>
-    </ul></div>`
+    </ul></div>`,
 ].join("<br/>");
 
 const saveUploadHtml = [
@@ -57,12 +58,13 @@ const saveUploadHtml = [
         <input type="submit" onclick="saveMap()" value="Save">
         <li> Upload a Map: </li>
         <input type="file" id="loadMap" accept="text/plain" onchange="loadMap()">
-    </ul></div>`
+    </ul></div>`,
 ].join("<br/>");
 
-const aboutHtml = '<div class="container"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
-  'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit ' +
-  'esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>'
+const aboutHtml =
+  '<div class="container"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
+  "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit " +
+  "esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>";
 
 const creditsHtml = [
   `<div class="container"><p>
@@ -74,7 +76,7 @@ const creditsHtml = [
         <a href="https://github.com/OpenSourceMusic/This-Nonsense-Place" target="_blank">Music</a><br>
         &emsp;Artist: Josh Penn-Pierson<br>
         &emsp;<a href="https://creativecommons.org/licenses/by/4.0/" style="text-decoration: none" target="_blank">CC-BY License</a><br><br>
-    </p></div>`
+    </p></div>`,
 ].join("<br/>");
 
 // opens and closes menu
@@ -84,9 +86,11 @@ btn.addEventListener("click", () => {
   if (menuOpen) {
     menu.style.width = "auto";
     menu.style.maxWidth = "200px";
-    menu.classList.add('open');
+    menu.classList.add("open");
   } else {
-    setTimeout(function() { menu.style.width = "0px"; }, "100")
+    setTimeout(function() {
+      menu.style.width = "0px";
+    }, "100");
   }
 });
 
@@ -105,7 +109,7 @@ function showModal(name) {
     case "Save/Upload":
       modalTitle.innerText = name;
       modalBody.innerHTML = saveUploadHtml;
-      return
+      return;
     case "About":
       modalTitle.innerText = name;
       modalBody.innerHTML = aboutHtml;
@@ -116,7 +120,6 @@ function showModal(name) {
       return;
   }
 }
-
 
 function startTimer() {
   startTimeout = setTimeout(function() {
@@ -134,13 +137,13 @@ function startTimer() {
       time.sec = 0;
     }
     if (time.ms < 10) {
-      time.ms = '0' + time.ms;
+      time.ms = "0" + time.ms;
     }
     if (time.sec < 10) {
-      time.sec = '0' + time.sec;
+      time.sec = "0" + time.sec;
     }
     if (time.min < 10) {
-      time.min = '0' + time.min;
+      time.min = "0" + time.min;
     }
     timer.innerHTML = `${time.min}:${time.sec}`;
 
@@ -154,7 +157,7 @@ function resetTimer() {
   time.sec = 0;
   time.min = 0;
   clearTimeout(startTimeout);
-  timer.innerHTML = '00:00';
+  timer.innerHTML = "00:00";
 }
 
 // user can modify min and max speeds of cars
@@ -166,13 +169,13 @@ function showSpeedSlider() {
     step: 1,
     connect: true,
     pips: {
-      mode: 'steps',
-      density: 4
+      mode: "steps",
+      density: 4,
     },
     range: {
-      'min': 1,
-      'max': 20
-    }
+      min: 1,
+      max: 20,
+    },
   });
 }
 
@@ -188,24 +191,29 @@ function applyChanges() {
 // enable toggling between modes by clicking the toggle button
 // left click on toggle button or click the spacebar
 document.querySelector(".switch").addEventListener("mousedown", (e) => {
-  if (e.button === 0) { changeMode(); }
-})
+  if (e.button === 0) {
+    changeMode();
+  }
+});
 window.addEventListener("keydown", (e) => {
-  if (e.key === " " || e.key === "Enter") { changeMode(); }
-  else if (e.key === "Tab") { e.preventDefault(); }     // disable original TAB-key functionality for screen dimming
-})
+  if (e.key === " " || e.key === "Enter") {
+    changeMode();
+  } else if (e.key === "Tab") {
+    e.preventDefault();
+  } // disable original TAB-key functionality for screen dimming
+});
 
 // music setup
 let song;
 function musicSetup() {
-  soundFormats('mp3');
-  song = loadSound('music/This Nonsense Place v1.0.mp3');
+  soundFormats("mp3");
+  song = loadSound("music/This Nonsense Place v1.0.mp3");
   song.volume(0.2);
 }
 
 window.onload = function() {
   musicSetup();
-}
+};
 
 function toggleMusic() {
   if (song.isPlaying()) {
@@ -219,13 +227,13 @@ function toggleMusic() {
 function toggleMode(isValid, isReset = false) {
   let initial = document.getElementById("toggle1");
   if (isValid) {
-    initial.outerHTML = "<input id = 'toggle1' type = 'checkbox' checked disabled>";
+    initial.outerHTML =
+      "<input id = 'toggle1' type = 'checkbox' checked disabled>";
     startTimer();
-    dotCircle.classList.add('show');
-  }
-  else {
+    dotCircle.classList.add("show");
+  } else {
     initial.outerHTML = "<input id = 'toggle1' type = 'checkbox' disabled>";
-    dotCircle.classList.remove('show');
+    dotCircle.classList.remove("show");
     if (!isReset) {
       showMsg("pause");
       clearTimeout(startTimeout);
@@ -236,12 +244,14 @@ function toggleMode(isValid, isReset = false) {
 }
 
 // Given a message Id, fade-in and out the error message
-let locked = false;   // prevents spamming of notifications
+let locked = false; // prevents spamming of notifications
 function showMsg(msgId) {
-  if (locked) { return; }
+  if (locked) {
+    return;
+  }
   locked = true;
   setTimeout(function() {
-    locked = false;         // current notification's time is done
+    locked = false; // current notification's time is done
   }, 4000);
   let message = document.getElementById(msgId);
   message.classList.remove("hide");
@@ -259,31 +269,40 @@ function showMsg(msgId) {
 // save current state of map as a text file
 function saveMap() {
   let fileName = document.getElementsByName("fileName")[0].value + ".txt";
-  if (fileName === ".txt") { fileName = "myMap.txt"; }    // default if no name is given
+  if (fileName === ".txt") {
+    fileName = "myMap.txt";
+  } // default if no name is given
   print("SAVED AS " + fileName);
 
-  let data = '';
+  let data = "";
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
-      if (grid[i][j].elem === 'B') {
+      if (grid[i][j].elem === "B") {
         data += "#";
-      } else if (grid[i][j].elem !== 'B') {       // Road or Structures
+      } else if (grid[i][j].elem !== "B") {
+        // Road or Structures
         for (let k = 0; k < 4; ++k) {
-          let direction = grid[i][j].direction[Object.keys(grid[i][j].direction)[k]];
-          if (direction) { data += "1"; }
-          else { data += "0"; }
+          let direction =
+            grid[i][j].direction[Object.keys(grid[i][j].direction)[k]];
+          if (direction) {
+            data += "1";
+          } else {
+            data += "0";
+          }
         }
         data += grid[i][j].elem;
       }
-      if (j !== (rows - 1)) { data += '|'; }
+      if (j !== rows - 1) {
+        data += "|";
+      }
     }
-    data += '\n';
+    data += "\n";
   }
 
   // provide download opportunity
   const file = new Blob([data], { type: "application/octet-stream" });
-  const link = document.createElement('a');
-  link.setAttribute('download', fileName);
+  const link = document.createElement("a");
+  link.setAttribute("download", fileName);
   link.href = window.URL.createObjectURL(file);
   link.click();
 }
@@ -294,11 +313,12 @@ function loadMap() {
   const reader = new FileReader();
 
   // parsing text file for character array
-  let text, charList = [];
+  let text,
+    charList = [];
   reader.onload = (evt) => {
-    text = evt.target.result.split('\n');
+    text = evt.target.result.split("\n");
     for (let j = 0; j < text.length; ++j) {
-      charList = [...charList, ...text[j].split('|')];
+      charList = [...charList, ...text[j].split("|")];
     }
 
     // clear board and copy state from given file
@@ -306,11 +326,11 @@ function loadMap() {
     resetGrid();
     for (let i = 0; i < cols; ++i) {
       for (let j = 0; j < rows; ++j) {
-        if (charList[index] !== '#') {
+        if (charList[index] !== "#") {
           grid[i][j].neighbors = getNeighbors(grid[i][j]);
           grid[i][j].updated = false;
           for (let k = 0; k < 4; ++k) {
-            if (charList[index][k] !== '0') {
+            if (charList[index][k] !== "0") {
               grid[i][j].direction[Object.keys(grid[i][j].direction)[k]] = true;
             }
           }
@@ -326,17 +346,17 @@ function loadMap() {
     for (let i = 0; i < cols; ++i) {
       for (let j = 0; j < rows; ++j) {
         switch (grid[i][j].elem) {
-          case 'T':                                   // traffic lights
+          case "T": // traffic lights
             grid[i][j].addTrafficLightProperties();
             break;
-          case 'S':                                     // car spawn
+          case "S": // car spawn
             drawStructure(grid[i][j].elem, i, j);
             break;
         }
       }
     }
   };
-  reader.readAsText(file);             // triggers onload function
+  reader.readAsText(file); // triggers onload function
 }
 
 // opens the menu containing structures
@@ -351,8 +371,12 @@ structBtn.addEventListener("click", () => {
     structArea.style.width = "160px";
   } else {
     menuOpen = false;
-    setTimeout(function() { structArea.style.width = "2%"; }, "100");
-    setTimeout(function() { structBtn.style.width = "2%"; }, "100");
+    setTimeout(function() {
+      structArea.style.width = "2%";
+    }, "100");
+    setTimeout(function() {
+      structBtn.style.width = "2%";
+    }, "100");
   }
 });
 
@@ -360,6 +384,6 @@ structBtn.addEventListener("click", () => {
 // Car Spawn Structure represented as 'S'
 const carSpawnOp = document.getElementById("carSpawn");
 carSpawnOp.addEventListener("click", () => {
-  structure = 'S';
+  structure = "S";
   structurePicked = true;
 });
