@@ -156,7 +156,6 @@ function BoradcastRoutableExitsToAllParents(point, prev, routableExits){
     if(point.routableExits == undefined) point.routableExits = [];
     let parent = prev.parentVertex;
     for(let exit of routableExits){
-        console.log(routableExits.length);
         point.routableExits.push({exit:exit.exit, outgoingEdge: point.parentEdge});//point at this point is not a vertex yet and cannot be passed to createRoute
         grid[parent.x][parent.y].routableExits.push({exit:exit.exit, outgoingEdge: prev.parentEdge});
         createRoute(prev.parentVertex, exit.exit, vertices);
@@ -173,7 +172,6 @@ function updateAllOutGoingEdges(point){
         if(point.direction[dir]){
             let neighbor = point.seeNeighbor(dir);
             let newParentEdge = getParentEdge(point, neighbor);
-            console.log(newParentEdge);
             updateRoadTileParent(neighbor, point, newParentEdge, oldParentVertex);
         }
     }
@@ -201,7 +199,6 @@ function updateRoadTileParent(point, newParentVertex, newParentEdge, oldParentVe
 }
 //neighboring road is the road tile that lead to this Vertex
 function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldParentVertex){
-    console.log("HEEREERER");
     if(oldParentVertex == undefined  || currentVertex == undefined || newParentEdge == undefined || newParentVertex == undefined) return;
     let index = currentVertex.incomingEdges.findIndex( edge => edge.endVertex == oldParentVertex);
     currentVertex.incomingEdges[index].endVertex = newParentVertex;
@@ -213,12 +210,4 @@ function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldPare
      //no need to update the currentVertex.incomingEdges[i].outgoingEdge. it is the same
     grid[oldParentVertex.x][oldParentVertex.y].outgoingEdges[index].endVertex = currentVertex;
 
-}
-function printVertices(vertices){
-    for(let v of vertices){
-        console.log("V:", v.x+"-"+v.y);
-        for(let edge of v.outgoingEdges){
-            console.log(edge);
-        }
-    }
 }

@@ -234,18 +234,15 @@ function mouseDragged() {
         if(!IsIntersection(spot)){
           spot.elem = 'R';
           spot.removeTrafficLightProperties();
-          console.log(spot.x, spot.y)
         }
       }else if(IsIntersection(spot)){
         spot.elem = 'T';
         handleMerge(spot, prev);
-        // spot.parentVertex = prev.parentVertex;
-        console.log('here', spot.parentEdge);
         spot.addTrafficLightProperties();
         addVertexProperties(spot, prev);
         spot.parentEdge = getParentEdge(prev, spot);
       }
-      if(isASplittingRoad(prev)){
+      if(isASplittingRoad(prev) && prev.elem != "SR"){//newly created SR tile
         prev.elem = "SR"; //splitting Road
         handleMerge(prev, spot);
         addVertexProperties(prev);
@@ -258,18 +255,16 @@ function mouseDragged() {
       if(spot.elem == "SV" && prev.elem != "B"){
         handleMerge(spot, prev);
         removeVertexProperties(spot);
-        console.log("remove");
         spot.elem == "R";
       }
       if(spot.elem == "R" && spot.elem != "SV"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
       }
-      if(prev.elem == "SV"){
+      if(prev.elem == "SV" || prev.elem == "SR"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = getParentEdge(prev, spot);
       }
-      //console.log(spot.parentEdge, spot.parentVertex);
       if(isAnExit(spot)){
         CreateRoutesToExit  (spot);
       }

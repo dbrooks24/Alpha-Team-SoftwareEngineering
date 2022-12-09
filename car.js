@@ -72,15 +72,13 @@ class Car{
     getAssignedDirection(vertex){
         let results = [];
         for(let exit of vertex.routableExits){
-            if(exit.exit.x == this.assignedExit.x && exit.exit.y == this.assignedExit.y){
+            if(exit.exit.x == this.assignedExit.x && exit.exit.y == this.assignedExit.y && exit.outgoingEdge != undefined){
                 results.push(exit.outgoingEdge);
             }
         }
         if(results.length != 0){
             return results[getRandomInt(results.length)]
         }else{
-            console.log("assignedExit", this.assignedExit)
-            console.log("no assigned direction");
             return -1;
         }
         
@@ -97,9 +95,7 @@ function moveCar(grid, map, i,j){
 function assignedRouting(grid, map, i, j){
     let car = map[i][j];//car is a reference
     let nextCoordinate =car.coordinate.seeNeighbor(car.dir);
-    //console.log(car.dir, nextCoordinate);
     if(nextCoordinate == -1){
-        console.log("Here");
             car.assignedExit = undefined;
             randomlyMoveCar(grid, map, i, j);
             return;            
@@ -115,7 +111,6 @@ function assignedRouting(grid, map, i, j){
             car.assignedExit = getExit(nextCoordinate);
         }
         if((nextCoordinate.elem == "T" || nextCoordinate.elem == "SR") && car.assignedExit != undefined){
-            //console.log("nextDirection", nextCoordinate);
             nextdir = car.getAssignedDirection(nextCoordinate);
         }
         else
@@ -123,15 +118,9 @@ function assignedRouting(grid, map, i, j){
             randomlyMoveCar(grid, map, i, j);
             return;
         }
-      
-        // if(car.assignedExit == undefined || nextdir == -1 ){
-        //     randomlyMoveCar(grid, map, i, j);
-        //     return;
-        // }
         car.setCoordinate(nextCoordinate);
         map[nextCoordinate.x][nextCoordinate.y] = map[i][j];      //moving vehicle to its neighboring tile
         removeCar(map, i,j);
-        //colorGrid(nextCoordinate, color(0, 0, 200, 200));         // color the next position of the car
         car.draw();
         car.updateInterval();
         car.dir = nextdir;
