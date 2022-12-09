@@ -6,13 +6,12 @@ function CreateRoutesToExit(exit){
     let vertices = [];
     createRoute(exit.parentVertex, exit, vertices);
     exit.parentVertex.routableExits.push({exit:exit, outgoingEdge: exit.parentEdge});
-    console.log(vertices);
+    console.log("connected subgraph: ",  vertices);
     removeLabels(vertices);//remove all the labels that were added from getConnectedVertices()
 }
 function createRoute(vertex, exit, subgraph){
     vertex.label = VISITED;
     subgraph.push(vertex);
-    console.log(vertex.x, vertex.y)
     for(let edge of vertex.incomingEdges){
         if(edge.label == UNEXPLORED){
             edge.label = VISITED;
@@ -63,12 +62,28 @@ function getParentEdge(initial, current){
   if(current.y == initial.y - 1) return 'up';
   if(current.y == initial.y + 1) return 'down';
 }
+function getNewOutgoingEdge(point, neighbor){
+    //new SR elements will only have two outgoing edges one that leeds to the neighbor and one that was there before merging
+    //the edge that leeds to the routable exits is the edge that doesn't leed to the newly created neighbor
+    //neihbor should be the newly extended tile
+    let newParentEdge;
+    for(const [dir , value] of Object.entries(point.direction)){
+        if(value){
+            let n = point.seeNeighbor(dir);
+            if(n.x != neighbor.x  && n.y != neighbor.y){
+                newParentEdge = dir;
+                break;
+            }
+        }
+    }
+    return newParentEdge;
+}
 //INPUTS: the coodinate, traffic light or splitting road, to add the vertex properties to.
 //        the road directly before this one
 function addVertexProperties(point, prev){
-    point.outgoingEdges = [];
-    point.incomingEdges = [];
-    point.routableExits = [];
+    if(point.outgoingEdges == undefined) point.outgoingEdges = [];
+    if(point.incomingEdges == undefined) point.incomingEdges = [];
+    if(point.routableExits == undefined) point.routableExits = [];
 
     //update parent vertex about the new vertex  
     //not needed for branching roads
@@ -78,7 +93,7 @@ function addVertexProperties(point, prev){
       grid[p.x][p.y].outgoingEdges.push({endVertex: point, outgoingEdge: point.parentEdge})//outgoingEdge == a direction.
       point.incomingEdges.push({endVertex: p, outgoingEdge: point.parentEdge});//used to back track the parent vertices
     }
-    if(prev != undefined){//splitting roads do not have a prev edge
+    if(prev != undefined ){//splitting roads do not have a prev edge
         let prevP = prev.parentVertex;
         if(prevP != undefined){//if the previous point has a a parent then notify its parent about the new vertex
             grid[prevP.x][prevP.y].outgoingEdges.push({endVertex: point, outgoingEdge: prev.parentEdge});
@@ -98,23 +113,54 @@ function removeVertexProperties(point){
 
 //MUST BE CALLED BEFORE POINT'S PARENT VERTEX VARIABLE IS UPDATED
 //handling merging points. When a new traffic light merges into a road, update all the rounding road tiles about the new parent vertex, and parent edge
-function handleMerge(point, prev = undefined){
+function handleMerge(point, neighbor){
     
     updateAllOutGoingEdges(point);
     
+    //handling routable exits
     if(point.elem == "SV" || point.elem == "T"){
         let pv = point.parentVertex;//get the nearest vertex along this directed subgraph
+                                            //niehgbor here is the previous road tile
+        BoradcastRoutableExitsToAllParents(point, neighbor, pv.routableExits.slice());//slice returns a copy, if not used, it will result in an infinite loop.
+    }else if(point.elem == "SR"){//this new vertex now leeds to all the routable exits the parent Vertex leads to
+        
+        //new SR elements will only have two outgoing edges one that leeds to the neighbor and one that was there before merging
+        //the edge that leeds to the routable exits is the edge that doesn't leed to the newly created neighbor
+        let newParentEdge;
+        for(const [dir , value] of Object.entries(point.direction)){
+            if(value){
+                let n = point.seeNeighbor(dir);
+                if(n.x != neighbor.x  && n.y != neighbor.y){
+                    newParentEdge = dir;
+                }
+            }
+        }
 
-        BoradcastRoutableExitsToAllParents(prev, pv.routableExits);
+        if(point.routableExits == undefined) point.routableExits = [];
+        let pv = point.parentVertex;
+        //update outgoing edges
+        let i = grid[pv.x][pv.y].outgoingEdges.find(edge => edge.outgoingEdge == point.parentEdge);
+        if(i != -1){
+            if(point.outgoingEdge  == undefined) point.outgoingEdges = [];
+            point.outgoingEdges.push({endVertex: pv, outgoingEdge: newParentEdge});
+        }
+        //update routable exits
+        for(let exit of pv.routableExits){
+            point.routableExits.push({exit: exit.exit, outgoingEdge: newParentEdge});
+        }
     }
 }
-function BoradcastRoutableExitsToAllParents(prev, routableExits){
+function BoradcastRoutableExitsToAllParents(point, prev, routableExits){
     if(point == undefined) return;
     let vertices = [];
+    if(point.routableExits == undefined) point.routableExits = [];
     let parent = prev.parentVertex;
     for(let exit of routableExits){
-        parent.routableExits.push({exit:exit.exit, outgoingEdge: prev.parentEdge});
-        createRoute(parent, exit.exit, vertices);
+        console.log(routableExits.length);
+        point.routableExits.push({exit:exit.exit, outgoingEdge: point.parentEdge});//point at this point is not a vertex yet and cannot be passed to createRoute
+        grid[parent.x][parent.y].routableExits.push({exit:exit.exit, outgoingEdge: prev.parentEdge});
+        createRoute(prev.parentVertex, exit.exit, vertices);
+        removeLabels(vertices);
     }
 }
 function updateAllOutGoingEdges(point){

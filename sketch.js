@@ -243,30 +243,31 @@ function mouseDragged() {
         console.log('here', spot.parentEdge);
         spot.addTrafficLightProperties();
         addVertexProperties(spot, prev);
-        spot.parentEdge = prev.parentEdge;
+        spot.parentEdge = getParentEdge(prev, spot);
       }
       if(isASplittingRoad(prev)){
-        handleMerge(prev, undefined);
-        console.log("splitting");
         prev.elem = "SR"; //splitting Road
+        handleMerge(prev, spot);
         addVertexProperties(prev);
         prev.parentEdge = getParentEdge(prev, spot);
         spot.parentEdge = prev.parentEdge;
         spot.parentVertex = prev
 
       }
-      if(spot.elem == "SV"){
-        console.log(prev.elem, spot.elem)
-      }
+      
       if(spot.elem == "SV" && prev.elem != "B"){
         handleMerge(spot, prev);
         removeVertexProperties(spot);
         console.log("remove");
         spot.elem == "R";
       }
-      if(spot.elem == "R" && prev.elem != "SR"){
+      if(spot.elem == "R" && spot.elem != "SV"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
+      }
+      if(prev.elem == "SV"){
+        spot.parentVertex = prev.parentVertex;
+        spot.parentEdge = getParentEdge(prev, spot);
       }
       //console.log(spot.parentEdge, spot.parentVertex);
       if(isAnExit(spot)){
