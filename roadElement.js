@@ -16,7 +16,6 @@ class coordinate {
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(prev){
     if(this.elem !== 'T') return;
-      addVertexProperties(this, prev);
  
 
     this.trafficInputDirections = trafficInput(this);

@@ -12,6 +12,7 @@ function CreateRoutesToExit(exit){
 function createRoute(vertex, exit, subgraph){
     vertex.label = VISITED;
     subgraph.push(vertex);
+    console.log(vertex.x, vertex.y)
     for(let edge of vertex.incomingEdges){
         if(edge.label == UNEXPLORED){
             edge.label = VISITED;
@@ -44,7 +45,7 @@ function removeOutgoingEdgesLabels(vertices){
 
 }
 function isASplittingRoad(point){
-    if(point.elem == "T")return false;//Traffic lights are not to be considered
+    if(point.elem == "T" || point == undefined)return false;//Traffic lights are not to be considered
     let isSplitting = false;    
     let count = 0;
     for(let dir of Object.values(point.direction)){
@@ -69,9 +70,10 @@ function addVertexProperties(point, prev){
     point.incomingEdges = [];
     point.routableExits = [];
 
-    //update parent vertex about the new vertex
+    //update parent vertex about the new vertex  
+    //not needed for branching roads
     let p = point.parentVertex;
-    if(p != undefined){//update parent when a vertex light is made. if the parentVertex exists.
+    if(p != undefined  && p != point){//update parent when a vertex light is made. if the parentVertex exists.
       //directed graph
       grid[p.x][p.y].outgoingEdges.push({endVertex: point, outgoingEdge: point.parentEdge})//outgoingEdge == a direction.
       point.incomingEdges.push({endVertex: p, outgoingEdge: point.parentEdge});//used to back track the parent vertices
@@ -83,44 +85,63 @@ function addVertexProperties(point, prev){
             point.incomingEdges.push({endVertex: prevP, outgoingEdge: prev.parentEdge});//used to back track the parent vertices
         }  
     }
-
     //vertices do not have parent vertices
     point.parentVertex = point;         
     point.parentEdge = undefined;
 }
+function removeVertexProperties(point){
+    point.incomingEdges = undefined;
+    point.outogoingEdges = undefined;
+    point.routableExits = undefined;
+
+}
 
 //MUST BE CALLED BEFORE POINT'S PARENT VERTEX VARIABLE IS UPDATED
 //handling merging points. When a new traffic light merges into a road, update all the rounding road tiles about the new parent vertex, and parent edge
-function handleMerge(point){
-//no need to label items since it finds the nearest vertex and stops
-    let neighboringRoads = [];
+function handleMerge(point, prev = undefined){
+    
+    updateAllOutGoingEdges(point);
+    
+    if(point.elem == "SV" || point.elem == "T"){
+        let pv = point.parentVertex;//get the nearest vertex along this directed subgraph
+
+        BoradcastRoutableExitsToAllParents(prev, pv.routableExits);
+    }
+}
+function BoradcastRoutableExitsToAllParents(prev, routableExits){
+    if(point == undefined) return;
+    let vertices = [];
+    let parent = prev.parentVertex;
+    for(let exit of routableExits){
+        parent.routableExits.push({exit:exit.exit, outgoingEdge: prev.parentEdge});
+        createRoute(parent, exit.exit, vertices);
+    }
+}
+function updateAllOutGoingEdges(point){
+    //no need to label items since it finds the nearest vertex and stops
+    //let neighboringRoads = [];
     let oldParentVertex = point.parentVertex;
 
     //point.incomingEdges.push({endVertex:point.parentVertex, outgoingEdge:})
     for(let dir in point.direction){
         if(point.direction[dir]){
             let neighbor = point.seeNeighbor(dir);
-            if(neighbor.elem != "T" && neighbor.elem != "SR"){
-                
-                let newParentEdge = getParentEdge(point, neighbor);
-                console.log(newParentEdge);
-                updateRoadTileParent(neighbor, point, newParentEdge, oldParentVertex);
-            }else{
-                updateVertexEdge(neighbor, point, point, oldParentVertex);
-            }
+            let newParentEdge = getParentEdge(point, neighbor);
+            console.log(newParentEdge);
+            updateRoadTileParent(neighbor, point, newParentEdge, oldParentVertex);
         }
     }
 }
-
 //Depth-first search
 function updateRoadTileParent(point, newParentVertex, newParentEdge, oldParentVertex){
     if(point.elem == "T" || point.elem == "SR"){
         updateVertexEdge(point, newParentVertex, newParentEdge, oldParentVertex);
         return;
     }
-    if(isAnExit(point)){
-        newParentVertex.outgoingEdges.push({exit:point, outgoingEdge: newParentEdge})
-    }
+    // if(isAnExit(point)){
+    //     return;
+    //     //newParentVertex.outgoingEdges.push({exit:point, outgoingEdge: newParentEdge})
+    // }
     point.parentEdge   = newParentEdge;
     point.parentVertex = newParentVertex;
     for(let dir in point.direction){
@@ -134,6 +155,7 @@ function updateRoadTileParent(point, newParentVertex, newParentEdge, oldParentVe
 }
 //neighboring road is the road tile that lead to this Vertex
 function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldParentVertex){
+    console.log("HEEREERER");
     if(oldParentVertex == undefined  || currentVertex == undefined || newParentEdge == undefined || newParentVertex == undefined) return;
     let index = currentVertex.incomingEdges.findIndex( edge => edge.endVertex == oldParentVertex);
     currentVertex.incomingEdges[index].endVertex = newParentVertex;

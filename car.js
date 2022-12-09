@@ -70,13 +70,19 @@ class Car{
         return options[Math.floor(Math.random() * options.length)];
     }
     getAssignedDirection(vertex){
+        let results = [];
         for(let exit of vertex.routableExits){
             if(exit.exit.x == this.assignedExit.x && exit.exit.y == this.assignedExit.y){
-                return exit.outgoingEdge;
+                results.push(exit.outgoingEdge);
             }
         }
-        console.log("no assigned direction");
-        return -1;
+        if(results.length != 0){
+            return results[getRandomInt(results.length)]
+        }else{
+            console.log("assignedExit", this.assignedExit)
+            console.log("no assigned direction");
+            return -1;
+        }
         
     }
 }
@@ -109,7 +115,7 @@ function assignedRouting(grid, map, i, j){
             car.assignedExit = getExit(nextCoordinate);
         }
         if((nextCoordinate.elem == "T" || nextCoordinate.elem == "SR") && car.assignedExit != undefined){
-            console.log("nextDirection", nextCoordinate);
+            //console.log("nextDirection", nextCoordinate);
             nextdir = car.getAssignedDirection(nextCoordinate);
         }
         else

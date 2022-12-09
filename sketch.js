@@ -217,13 +217,15 @@ function mouseDragged() {
     
     // create a new road if a 'B'-tile is clicked; otherwise, grow an existing road
     if ((spot.elem == "B") && (areEqual(prev, spot))) {
-      if(spot.elem ===  'B') spot.elem = 'R';
+      if(spot.elem ===  "B"){
+        spot.elem = "SV";
+        addVertexProperties(spot);
+      }
       spot.neighbors = getNeighbors(spot);
       spot.updated = false;
     } else if (!areEqual(prev, spot) && (prev.neighbors.findIndex(i => i.x === spot.x && i.y === spot.y) != -1)) {
-      spot.elem = 'R';
+      if(spot.elem == "B")spot.elem = 'R';
       spot.neighbors = getNeighbors(spot);
-      
       assignDirection(prev, spot);    // assign direction according to the newly added route
       colorGrid(prev, 0, true);       // removes paint residue from arrows when removing connectivity (while holding tab)
       colorGrid(spot, 0, true);
@@ -236,21 +238,32 @@ function mouseDragged() {
         }
       }else if(IsIntersection(spot)){
         spot.elem = 'T';
-        handleMerge(spot);
+        handleMerge(spot, prev);
         // spot.parentVertex = prev.parentVertex;
+        console.log('here', spot.parentEdge);
+        spot.addTrafficLightProperties();
+        addVertexProperties(spot, prev);
         spot.parentEdge = prev.parentEdge;
-        spot.addTrafficLightProperties(prev);
-        
       }
-      if(prev != undefined && isASplittingRoad(prev)){
-        handleMerge(prev);
-        
-        addVertexProperties(prev, undefined);
+      if(isASplittingRoad(prev)){
+        handleMerge(prev, undefined);
+        console.log("splitting");
+        prev.elem = "SR"; //splitting Road
+        addVertexProperties(prev);
         prev.parentEdge = getParentEdge(prev, spot);
         spot.parentEdge = prev.parentEdge;
         spot.parentVertex = prev
-        prev.elem = "SR"; //splitting Road
-      }    
+
+      }
+      if(spot.elem == "SV"){
+        console.log(prev.elem, spot.elem)
+      }
+      if(spot.elem == "SV" && prev.elem != "B"){
+        handleMerge(spot, prev);
+        removeVertexProperties(spot);
+        console.log("remove");
+        spot.elem == "R";
+      }
       if(spot.elem == "R" && prev.elem != "SR"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
