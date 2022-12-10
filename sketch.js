@@ -152,7 +152,7 @@ function mousePressed() {
   } else if(mouseButton === LEFT && simulationHasStarted){
     let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
     //create new car if the coordinate is empty and the tile is a road tile
-    if(carMap[i][j] === undefined && grid[i][j].elem === 'R'){
+    if(carMap[i][j] === undefined && grid[i][j].elem === 'R' || grid[i][j].elem === 'SV'){
       carMap[i][j] = new Car(grid[i][j], carImgs[randomInRange(0, carImgs.length)]);
       carMap[i][j].draw();
     }
@@ -240,15 +240,15 @@ function mouseDragged() {
         handleMerge(spot, prev);
         spot.addTrafficLightProperties();
         addVertexProperties(spot, prev);
-        spot.parentEdge = getParentEdge(prev, spot);
+        // spot.parentEdge = getParentEdge(prev, spot);
       }
       if(isASplittingRoad(prev) && prev.elem != "SR"){//newly created SR tile
         prev.elem = "SR"; //splitting Road
         handleMerge(prev, spot);
         addVertexProperties(prev);
-        prev.parentEdge = getParentEdge(prev, spot);
-        spot.parentEdge = prev.parentEdge;
-        spot.parentVertex = prev
+        // prev.parentEdge = getParentEdge(prev, spot);
+        // spot.parentEdge = prev.parentEdge;
+        // spot.parentVertex = prev
 
       }
       
@@ -257,13 +257,15 @@ function mouseDragged() {
         removeVertexProperties(spot);
         spot.elem == "R";
       }
-      if(spot.elem == "R" && spot.elem != "SV"){
+      if(spot.elem == "R"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
       }
-      if(prev.elem == "SV" || prev.elem == "SR"){
+      if(isVertex(prev) && !isVertex(spot)){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = getParentEdge(prev, spot);
+      }else if(isVertex(prev)){
+
       }
       if(isAnExit(spot)){
         CreateRoutesToExit  (spot);
@@ -444,6 +446,7 @@ function drawStructure(structure, x, y) {
   switch (structure) {
     case 'R':
     case 'T':
+    case 'SV':
     case 'SR':
       image(roadImg, x * divisor + 1, y * divisor + 1);
       return;

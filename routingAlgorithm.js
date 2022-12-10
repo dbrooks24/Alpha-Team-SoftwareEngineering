@@ -62,22 +62,22 @@ function getParentEdge(initial, current){
   if(current.y == initial.y - 1) return 'up';
   if(current.y == initial.y + 1) return 'down';
 }
-function getNewOutgoingEdge(point, neighbor){
-    //new SR elements will only have two outgoing edges one that leeds to the neighbor and one that was there before merging
-    //the edge that leeds to the routable exits is the edge that doesn't leed to the newly created neighbor
-    //neihbor should be the newly extended tile
-    let newParentEdge;
-    for(const [dir , value] of Object.entries(point.direction)){
-        if(value){
-            let n = point.seeNeighbor(dir);
-            if(n.x != neighbor.x  && n.y != neighbor.y){
-                newParentEdge = dir;
-                break;
-            }
-        }
-    }
-    return newParentEdge;
-}
+// function getNewOutgoingEdge(point, neighbor){
+//     //new SR elements will only have two outgoing edges one that leeds to the neighbor and one that was there before merging
+//     //the edge that leeds to the routable exits is the edge that doesn't leed to the newly created neighbor
+//     //neihbor should be the newly extended tile
+//     let newParentEdge;
+//     for(const [dir , value] of Object.entries(point.direction)){
+//         if(value){
+//             let n = point.seeNeighbor(dir);
+//             if(n.x != neighbor.x  && n.y != neighbor.y){
+//                 newParentEdge = dir;
+//                 break;
+//             }
+//         }
+//     }
+//     return newParentEdge;
+// }
 //INPUTS: the coodinate, traffic light or splitting road, to add the vertex properties to.
 //        the road directly before this one
 function addVertexProperties(point, prev){
@@ -90,14 +90,20 @@ function addVertexProperties(point, prev){
     let p = point.parentVertex;
     if(p != undefined  && p != point){//update parent when a vertex light is made. if the parentVertex exists.
       //directed graph
-      grid[p.x][p.y].outgoingEdges.push({endVertex: point, outgoingEdge: point.parentEdge})//outgoingEdge == a direction.
+      grid[p.x][p.y].outgoingEdges.push({endVertex: point, outgoingEdge:point.parentEdge})//outgoingEdge == a direction.
+      console.log(grid[p.x][p.y].outgoingEdges)
       point.incomingEdges.push({endVertex: p, outgoingEdge: point.parentEdge});//used to back track the parent vertices
     }
     if(prev != undefined ){//splitting roads do not have a prev edge
+        let newEdge = prev.parentEdge;
+        if(isVertex(prev)){
+          newEdge = getParentEdge(prev, point);//since parentEdge is undefined for vertices or stores a temporary value
+          console.log("here", newEdge, p.x, p.y)
+        }
         let prevP = prev.parentVertex;
         if(prevP != undefined){//if the previous point has a a parent then notify its parent about the new vertex
-            grid[prevP.x][prevP.y].outgoingEdges.push({endVertex: point, outgoingEdge: prev.parentEdge});
-            point.incomingEdges.push({endVertex: prevP, outgoingEdge: prev.parentEdge});//used to back track the parent vertices
+            grid[prevP.x][prevP.y].outgoingEdges.push({endVertex: point, outgoingEdge: newEdge});
+            point.incomingEdges.push({endVertex: prevP, outgoingEdge:newEdge});//used to back track the parent vertices
         }  
     }
     //vertices do not have parent vertices
@@ -200,14 +206,18 @@ function updateRoadTileParent(point, newParentVertex, newParentEdge, oldParentVe
 //neighboring road is the road tile that lead to this Vertex
 function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldParentVertex){
     if(oldParentVertex == undefined  || currentVertex == undefined || newParentEdge == undefined || newParentVertex == undefined) return;
-    let index = currentVertex.incomingEdges.findIndex( edge => edge.endVertex == oldParentVertex);
+    let index = currentVertex.incomingEdges.findIndex( edge => (edge.endVertex.x == oldParentVertex.x) && (edge.endVertex.y == oldParentVertex.y) && edge.outgoingEdge != undefined);
+    if(index == -1) return;
     currentVertex.incomingEdges[index].endVertex = newParentVertex;
     currentVertex.incomingEdges[index].outgoingEdge = newParentEdge;
-
+    console.log('here')
     //not sure if I can manipulate it directly without using the gird
     index = grid[oldParentVertex.x][oldParentVertex.y].outgoingEdges.findIndex( edge => edge.endVertex == currentVertex);
 
      //no need to update the currentVertex.incomingEdges[i].outgoingEdge. it is the same
     grid[oldParentVertex.x][oldParentVertex.y].outgoingEdges[index].endVertex = currentVertex;
 
+}
+function isVertex(point){
+    return point.elem == "T" || point.elem == "SR" || point.elem == "SV";
 }

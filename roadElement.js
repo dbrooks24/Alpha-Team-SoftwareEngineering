@@ -116,9 +116,9 @@ function assignDirection(initial, current) {
         (current.direction[Object.keys(current.direction)[opposite]] != true)) {
       initial.direction[Object.keys(initial.direction)[index]] = true;
       initial.updated = false;
-      if(initial.elem == "T"){
-        initial.parentEdge = Object.keys(initial.direction)[index];
-      }
+      // if(initial.elem == "T"){
+      //   initial.parentEdge = Object.keys(initial.direction)[index];
+      // }
     } else {
       initial.direction[Object.keys(initial.direction)[index]] = false;
     }
