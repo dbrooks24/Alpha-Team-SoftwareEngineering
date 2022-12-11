@@ -12,12 +12,12 @@ let startTimeout = null;
 let time = {
   ms: 0,
   sec: 0,
-  min: 0,
+  min: 0
 };
 
 const instructionsHtml = [
-  // Instructions section
-  `<div class="container">
+    // Instructions section
+    `<div class="container">
     <ul class="text-info margin">
         <li>Press the <b>spacebar</b>, <b>enter</b>, or <b>toggle</b> to switch between <b>Road Editing</b> and <b>Begin Simulation</b> modes.</li>
         <li>Click <b>Reset Simulation</b> to clear the entire board. </li>
@@ -33,7 +33,7 @@ const instructionsHtml = [
         <li>When in <b>Begin Simulation</b> mode:</li>
             <ul class="text-secondary">
                 <li><b>Left-click</b> a road tile with connectivity to create a single car entity.</li>
-                <li><b>Left-click</b> the traffic lights to toggle it.</li>
+                <li><b>Left-click</b> the traffic lights to toggle them.</li>
             </ul>
     </ul></div>`,
 ].join("<br/>");
@@ -62,9 +62,9 @@ const saveUploadHtml = [
 ].join("<br/>");
 
 const aboutHtml =
-  '<div class="container"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
-  "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit " +
-  "esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>";
+  '<div class="container"><p>A group project for Software Engineering made by Sami Al-Jailani, David Brooks, Nghia Dao, ' +
+  "Jacob Butkovic, Brian Brenner, Kayla Carter, Kevin Coran, Jason Abounader, and Lorenzo Bair." +
+  "</p></div>";
 
 const creditsHtml = [
   `<div class="container"><p>
@@ -127,7 +127,7 @@ function startTimer() {
     time.sec = parseInt(time.sec);
     time.min = parseInt(time.min);
     time.ms++;
-
+    
     if (time.ms == 100) {
       time.sec = time.sec + 1;
       time.ms = 0;
@@ -146,12 +146,12 @@ function startTimer() {
       time.min = "0" + time.min;
     }
     timer.innerHTML = `${time.min}:${time.sec}`;
-
+    
     // calling recursively
     startTimer();
   }, 10);
 }
-
+ 
 function resetTimer() {
   time.ms = 0;
   time.sec = 0;
@@ -201,7 +201,7 @@ window.addEventListener("keydown", (e) => {
   } else if (e.key === "Tab") {
     e.preventDefault();
   } // disable original TAB-key functionality for screen dimming
-});
+})
 
 // music setup
 let song;
@@ -219,6 +219,7 @@ function toggleMusic() {
   if (song.isPlaying()) {
     song.stop();
   } else {
+    song.loop();
     song.play();
   }
 }
@@ -341,7 +342,7 @@ function loadMap() {
         ++index;
       }
     }
-
+        
     // apply structures on top
     for (let i = 0; i < cols; ++i) {
       for (let j = 0; j < rows; ++j) {

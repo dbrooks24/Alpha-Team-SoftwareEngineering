@@ -106,7 +106,7 @@ function draw() {
       }
 
       // drawing structures
-      if (grid[i][j] !== "SR" && grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
+      if (grid[i][j].elem !== "SR" && grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
         drawStructure(grid[i][j].elem, i, j);
         if (keyIsDown(TAB)) {
           displayDirections(i, j);
@@ -162,7 +162,8 @@ function mousePressed() {
       grid[i][j].updateInterval();
       drawTrafficLight(grid[i][j]);
     }
-  } else if (structurePicked && !simulationHasStarted && structure !== '' && (grid[prev.x][prev.y].elem === 'R')) { // structure placement
+  } else if (structurePicked && !simulationHasStarted && structure !== '' && ((grid[prev.x][prev.y].elem === 'R')
+  || grid[prev.x][prev.y].elem === "SV")) { // structure placement
 
     // structures must be placed on road tiles where no other road tiles go into
     for (let i = 0; i < 4; ++i) {
@@ -180,29 +181,12 @@ function mousePressed() {
   }
 }
 
-// only consider a road that goes from A to B (where B is at the edge), even if it's just two tiles, for car instantiation 
+// change modes
 function changeMode(){
   if (!menuOpen) {
-    // check if a legal road exists; that is, a road -- with no direction -- that ends at an edge for cars to despawn)
-    for (let i = 0; i < cols; ++i) {
-      for (let j = 0; j < rows; ++j) {
-        if ((grid[i][j].elem === 'R') && isEdge(grid[i][j]) && ((Object.keys(Object.entries(grid[i][j].direction).filter(([_, value]) => value === true))).length === 0)) {
-
-          // if at least one tile is going into this tile at the edge, car instantiation can be done
-          for (let k = 0; k < 4; ++k) {
-            let nearby = grid[i][j].seeNeighbor(Object.keys(grid[i][j].direction)[k]);
-            if (nearby.direction[Object.keys(nearby.direction)[getOpposite(k)]] === true) {
-
-              // enable/disable car instantiation and turn the toggle on [left->right] on the UI
-              simulationHasStarted = !simulationHasStarted;
-              toggleMode(simulationHasStarted);
-              return; // only need 1 confirmed legal road
-            }
-          }
-        }
-      }
-    }
-    showMsg("err0");  // pop-up error message to tell user that a complete road is required to do car instantiation
+    // enable/disable car instantiation and turn the toggle on [left->right] on the UI
+    simulationHasStarted = !simulationHasStarted;
+    toggleMode(simulationHasStarted);
   }
 }
 
