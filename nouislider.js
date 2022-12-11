@@ -4,7 +4,7 @@
  * https://github.com/leongersen/noUiSlider
  *
  * @author Léon Gersen
- * @license MIT License
+ * @license MIT License <https://github.com/leongersen/noUiSlider/blob/master/LICENSE.md>
  */
 
 (function (global, factory) {

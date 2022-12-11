@@ -9,10 +9,15 @@ class coordinate {
     // at least one must be false (cars can't go backwards on roads here)
     this.direction = {'up': false, 'left': false, 'right': false, 'down': false};
     this.updated = true;
-  }
+    this.aTimer = 0;
+    this.parentVertex = undefined;//the traffic light that leads to this tile. It should be called on only elements of type "R"
+    this.parentEdge = undefined;
+    }
   //properties to be added only to traffic light coordinates
-  addTrafficLightProperties(){
+  addTrafficLightProperties(prev){
     if(this.elem !== 'T') return;
+ 
+
     this.trafficInputDirections = trafficInput(this);
     this.trafficFlowInterval    = 0;
     this.currentInput = undefined;
@@ -41,6 +46,8 @@ class coordinate {
     this.currentInput           = undefined;
     this.updateInterval         = undefined;
     this.changeCurrentInput     = undefined;
+    this.outgoingEdges          = undefined;
+    this.routableExits          = undefined;
   }
   // fetch a single neighbor in the given direction (given as 'way')
   seeNeighbor(way) {
@@ -109,6 +116,9 @@ function assignDirection(initial, current) {
         (current.direction[Object.keys(current.direction)[opposite]] != true)) {
       initial.direction[Object.keys(initial.direction)[index]] = true;
       initial.updated = false;
+      // if(initial.elem == "T"){
+      //   initial.parentEdge = Object.keys(initial.direction)[index];
+      // }
     } else {
       initial.direction[Object.keys(initial.direction)[index]] = false;
     }
@@ -117,7 +127,7 @@ function assignDirection(initial, current) {
 
 // remove a road by simply right-clicking it (can't drag & delete multiple roads)
 function removeRoad(point, reset = false) {
-  if (((point.elem != 'R') && (point.elem != 'T')) || (carMap[point.x][point.y] != undefined)) { return; }
+  if (point.elem =="B" || (carMap[point.x][point.y] != undefined)) { return; }
   for (let i = 0; (i < 4) && (reset === false); ++i) {            // if intermediate road, don't delete
     if (point.direction[Object.keys(point.direction)[i]] === true) {
       return;
@@ -187,4 +197,14 @@ function trafficInput(point){
       if(grid[point.x][point.y + 1].direction.up){result.down = true;}
     }
     return result;
+}
+function isAnExit(point){
+  let noValidDirection = true;
+  for(const value of Object.values(point.direction)){
+    if(value === true){
+        noValidDirection = false;
+        break;
+    }
+  }
+  return isEdge(point) && noValidDirection;
 }
