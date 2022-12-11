@@ -10,6 +10,8 @@ function CreateRoutesToExit(exit){
 
     removeLabels(vertices);//remove all the labels that were added from createRoute()
 }
+
+//Deth-for search to get the connected directed graph
 function createRoute(vertex, exit, subgraph){
     if(vertex.incomingEdges == undefined) return;
     vertex.label = VISITED;
