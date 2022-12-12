@@ -105,7 +105,19 @@ function removeVertexProperties(point){
     point.routableExits = undefined;
 
 }
-
+//get the other edge that doesn't lead to the neighbor
+function getOtherEdge(point, neighbor){
+    let newParentEdge;
+    for(const [dir , value] of Object.entries(point.direction)){
+        if(value){
+            let n = point.seeNeighbor(dir);
+            if(n.x != neighbor.x  && n.y != neighbor.y){
+                newParentEdge = dir;
+            }
+        }
+    }
+    return newParentEdge;
+}
 //MUST BE CALLED BEFORE POINT'S PARENT VERTEX VARIABLE IS UPDATED
 //handling merging points. When a new traffic light merges into a road, update all the srounding road tiles about the new parent vertex, and parent edge
 function handleMerge(point, neighbor){
@@ -125,15 +137,7 @@ function handleMerge(point, neighbor){
         
         //new SR elements will only have two outgoing edges one that leeds to the neighbor and one that was there before merging
         //the edge that leeds to the routable exits is the edge that doesn't leed to the newly created neighbor
-        let newParentEdge;
-        for(const [dir , value] of Object.entries(point.direction)){
-            if(value){
-                let n = point.seeNeighbor(dir);
-                if(n.x != neighbor.x  && n.y != neighbor.y){
-                    newParentEdge = dir;
-                }
-            }
-        }
+        let newParentEdge = getOtherEdge(point, neighbor);
 
         if(point.routableExits == undefined) point.routableExits = [];
         let pv = point.parentVertex;
@@ -157,9 +161,9 @@ function BoradcastRoutableExitsToAllParents(point, prev, routableExits){
     let vertices = [];
     if(point.routableExits == undefined) point.routableExits = [];
     let parent = prev.parentVertex;
-    
     for(let exit of routableExits){
-        point.routableExits.push({exit:exit.exit, outgoingEdge: point.parentEdge});//point at this point is not a vertex yet and cannot be passed to createRoute
+        let newEdge; for(let dir in point.direction){ if (point.direction[dir]){newEdge = dir;break;}}
+        point.routableExits.push({exit:exit.exit, outgoingEdge: newEdge});//point at this point is not a vertex yet and cannot be passed to createRoute
         grid[parent.x][parent.y].routableExits.push({exit:exit.exit, outgoingEdge: prev.parentEdge});
         createRoute(prev.parentVertex, exit.exit, vertices);
         removeLabels(vertices);
@@ -211,9 +215,11 @@ function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldPare
         grid[oldParentVertex.x][oldParentVertex.y].outgoingEdges[index].endVertex = currentVertex;
     }
     let routableExits = [];
-    if(newParentVertex.parentVertex != undefined){
-        routableExits = newParentVertex.parentVertex.routableExits;
-    }
+    // console.log("new parent", newParentVertex);
+    // console.log("old", oldParentVertex)
+    // if(newParentVertex.parentVertex != undefined){
+    //     routableExits = newParentVertex.parentVertex.routableExits;
+    // }
 
 }
 function isVertex(point){
