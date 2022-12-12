@@ -130,7 +130,12 @@ function handleMerge(point, neighbor){
         let allExits = pv.routableExits;
         if(allExits == undefined) return;
         let routableExits = [];
-        allExits.forEach(exit => {if(exit.outgoingEdge == point.parentEdge) routableExits.push(exit)})
+        console.log(point.parentEdge)
+        if(point.parentEdge != undefined){// is not a vertex
+            allExits.forEach(exit => {if(exit.outgoingEdge == point.parentEdge) routableExits.push(exit)})
+        }else{//is a vertex
+            routableExits = allExits;
+        }
         routableExits = routableExits.slice();
         BoradcastRoutableExitsToAllParents(point, neighbor, routableExits);//slice returns a copy, if not used, it will result in an infinite loop.
     }else if(point.elem == "SR"){//this new vertex now leeds to all the routable exits the parent Vertex leads to
@@ -159,12 +164,18 @@ function handleMerge(point, neighbor){
 function BoradcastRoutableExitsToAllParents(point, prev, routableExits){
     if(point == undefined) return;
     let vertices = [];
-    if(point.routableExits == undefined) point.routableExits = [];
     let parent = prev.parentVertex;
     for(let exit of routableExits){
+     
         let newEdge; for(let dir in point.direction){ if (point.direction[dir]){newEdge = dir;break;}}
-        point.routableExits.push({exit:exit.exit, outgoingEdge: newEdge});//point at this point is not a vertex yet and cannot be passed to createRoute
-        grid[parent.x][parent.y].routableExits.push({exit:exit.exit, outgoingEdge: prev.parentEdge});
+        if(newEdge == undefined) newEdge = getParentEdge(prev, point);
+        if(point.routableExits== undefined){//is a new vertex
+            point.routableExits = [];
+            point.routableExits.push({exit:exit.exit, outgoingEdge: newEdge});//point at this point is not a vertex yet and cannot be passed to createRoute
+        }
+        let prevParentEdge = prev.parentEdge == undefined? getParentEdge(prev, point): prev.parentEdge;
+        grid[parent.x][parent.y].routableExits.push({exit:exit.exit, outgoingEdge: prevParentEdge});
+
         createRoute(prev.parentVertex, exit.exit, vertices);
         removeLabels(vertices);
     }

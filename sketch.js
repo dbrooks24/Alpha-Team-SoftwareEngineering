@@ -213,6 +213,9 @@ function mouseDragged() {
       assignDirection(prev, spot);    // assign direction according to the newly added route
       colorGrid(prev, 0, true);       // removes paint residue from arrows when removing connectivity (while holding tab)
       colorGrid(spot, 0, true);
+      if(isVertex(spot)){
+        handleMerge(spot, prev);
+      }
       //change the element type from R to T if the road has become a intersection
       if(spot.elem === 'T'){
         if(!IsIntersection(spot)){
@@ -253,8 +256,6 @@ function mouseDragged() {
       if(isVertex(prev) && !isVertex(spot)){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = getParentEdge(prev, spot);
-      }else if(isVertex(prev)){
-
       }
       if(isAnExit(spot)){
         CreateRoutesToExit  (spot);
