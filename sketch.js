@@ -227,9 +227,14 @@ function mouseDragged() {
         // spot.parentEdge = getParentEdge(prev, spot);
       }
       if(isASplittingRoad(prev) && prev.elem != "SR"){//newly created SR tile
-        prev.elem = "SR"; //splitting Road
-        handleMerge(prev, spot);
-        addVertexProperties(prev);
+        if(prev.elem != "SV"){
+          prev.elem = "SR";
+          handleMerge(prev, spot);
+          addVertexProperties(prev);
+        }else{
+          prev.elem = "SR";
+        }
+
         // prev.parentEdge = getParentEdge(prev, spot);
         // spot.parentEdge = prev.parentEdge;
         // spot.parentVertex = prev
