@@ -236,11 +236,11 @@ function mouseDragged() {
 
       }
       
-      // if(spot.elem == "SV" && prev.elem != "B"){
-      //   handleMerge(spot, prev);
-      //   removeVertexProperties(spot);
-      //   spot.elem = "R";
-      // }
+      if(spot.elem == "SV" && prev.elem != "B" && prev.parentVertex != spot){
+        handleMerge(spot, prev);
+        removeVertexProperties(spot);
+        spot.elem = "R";
+      }
       if(spot.elem == "R"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
