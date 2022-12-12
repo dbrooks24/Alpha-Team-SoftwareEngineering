@@ -236,11 +236,11 @@ function mouseDragged() {
 
       }
       
-      if(spot.elem == "SV" && prev.elem != "B"){
-        handleMerge(spot, prev);
-        removeVertexProperties(spot);
-        spot.elem == "R";
-      }
+      // if(spot.elem == "SV" && prev.elem != "B"){
+      //   handleMerge(spot, prev);
+      //   removeVertexProperties(spot);
+      //   spot.elem = "R";
+      // }
       if(spot.elem == "R"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
@@ -331,7 +331,7 @@ function keyReleased() {
 function restoreLook() {
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
-      if (                  grid[i][j].elem !="B") {
+      if (grid[i][j].elem != "B") {
         grid[i][j].updated = false;
         colorGrid(grid[i][j], 0, true);
       } else {

@@ -199,7 +199,7 @@ function updateRoadTileParent(point, newParentVertex, newParentEdge, oldParentVe
 //neighboring road is the road tile that lead to this Vertex
 function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldParentVertex){
     if(oldParentVertex == undefined  || currentVertex == undefined || newParentEdge == undefined || newParentVertex == undefined) return;
-    if(currentVertex.incomingEdges == undefined)return;
+    if(currentVertex.incomingEdges == undefined) return;
     let index = currentVertex.incomingEdges.findIndex( edge => (edge.endVertex.x == oldParentVertex.x) && (edge.endVertex.y == oldParentVertex.y) && edge.outgoingEdge != undefined);
     if(index == -1) return;
     currentVertex.incomingEdges[index].endVertex = newParentVertex;
