@@ -356,10 +356,70 @@ function loadMap() {
         }
       }
     }
+    initialGraph();
   };
   reader.readAsText(file); // triggers onload function
 }
-
+function initialGraph(){
+  let exits = [];
+  let vertices = [];
+  for(let i = 0; i < cols; ++i){
+    for(let j = 0; j < rows; ++j){
+      if(isAnExit(grid[i][j])){
+        exits.push(grid[i][j]);
+      }
+      if(isVertex(grid[i][j])  || isASplittingRoad(grid[i][j])){
+        if(isASplittingRoad(grid[i][j])) grid[i][j].elem = "SR";
+        addVertexProperties(grid[i][j], undefined);
+        vertices.push(grid[i][j]);
+      }
+    }
+  }
+  DFS(vertices.slice());
+  console.log(exits);
+  console.log(vertices);
+  for(let exit of exits){
+    CreateRoutesToExit(exit);
+  }
+}
+//depth first search initialization of indices
+function DFS(vertices){
+  let stack = [];
+  let i = 0;
+  console.log("vertices length", vertices.length)
+  while(vertices.length != 0){
+    console.log(vertices[0])
+    for(let dir in vertices[0].direction)
+    if(vertices[0].direction[dir]){
+      let n = vertices[0].seeNeighbor(dir);
+      n.parentVertex = vertices[0];
+      n.parentEdge = getParentEdge(vertices[0], n);
+      stack.push(n);
+      ++i;
+    }
+    let prevVertex = vertices.shift()
+    while(stack.length != 0){
+      let curr = stack.pop();
+      if(isVertex(curr)){
+        curr.incomingEdges.push({endVertex: prevVertex, outgoingEdge: curr.parentEdge});
+        prevVertex.outgoingEdges.push({endVertex: curr, outgoingEdge: curr.parentEdge})
+        curr.parentVertex = curr;
+        curr.parentEdge = undefined;
+        continue;
+      }
+      for(let dir in curr.direction){
+          if(curr.direction[dir]){
+            let n = curr.seeNeighbor(dir);
+            n.parentVertex = curr.parentVertex;
+            n.parentEdge = curr.parentEdge;
+            stack.push(n);
+            ++i;
+          }
+        }
+      }
+    }
+    console.log(i);
+  }
 // opens the menu containing structures
 let structMenuOpen = false;
 const structBtn = document.getElementById("structureMenu");
