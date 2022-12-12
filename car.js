@@ -112,6 +112,10 @@ function assignedRouting(grid, map, i, j){
         }
         if((nextCoordinate.elem == "T" || nextCoordinate.elem == "SR") && car.assignedExit != undefined){
             nextdir = car.getAssignedDirection(nextCoordinate);
+            if(!nextCoordinate.direction[nextdir]){
+                randomlyMoveCar(grid, map, i, j);
+                return;
+            }
         }
         else
         {
