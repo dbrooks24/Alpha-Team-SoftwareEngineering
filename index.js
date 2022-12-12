@@ -20,13 +20,13 @@ const instructionsHtml = [
     `<div class="container">
     <ul class="text-info margin">
         <li>Press the <b>spacebar</b>, <b>enter</b>, or <b>toggle</b> to switch between <b>Road Editing</b> and <b>Begin Simulation</b> modes.</li>
-        <li>Click <b>Reset Simulation</b> to clear the entire board. </li>
-        <li>Hold <b>tab</b> to display road connectivity. </li>
+        <li>Click <b>RESET</b> to clear the entire board. </li>
+        <li>Hold <b>TAB</b> to display road connectivity. </li>
         <li>When in <b>Road Editing</b> mode:</li>
             <ul class="text-secondary">
                 <li><b>Left-click</b> to create a new road tile.</li>
-                <li>To continue building that road, <b>left-click</b> and <b>hold</b> the existing road tile and <b>drag</b><br> the mouse.</li>
-                <li>To remove connectivity from one tile to another, <b>left-click</b> and <b>hold</b> the initial tile<br> and <b>drag</b> to the tile you want to disconnect from.</li>
+                <li>To continue building that road, <b>left-click</b> and <b>hold</b> the existing road tile and <b>drag</b> the mouse.</li>
+                <li>To remove connectivity from one tile to another, <b>left-click</b> and <b>hold</b> the initial tile and <b>drag</b><br> to the tile you want to disconnect from.</li>
                 <li><b>Right-click</b> to remove a road tile with no connectivity.</li>
                 <li><b>Right-click</b> a car to remove it.</li>
             </ul>
@@ -337,7 +337,11 @@ function loadMap() {
           }
 
           // check last char for structure placements
-          grid[i][j].elem = charList[index][4];
+          if (charList[index][5] !== undefined) {
+            grid[i][j].elem = (charList[index][4] + charList[index][5]);  // element like "SV"
+          } else {
+            grid[i][j].elem = charList[index][4];       // element like 'S', 'B', etc.
+          }
         }
         ++index;
       }

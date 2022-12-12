@@ -106,7 +106,7 @@ function draw() {
       }
 
       // drawing structures
-      if (grid[i][j].elem !== "SR" && grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
+      if (grid[i][j].elem !== "SV" && grid[i][j].elem !== "SR" && grid[i][j].elem !== 'R' && grid[i][j].elem !== 'T' && grid[i][j].elem !== 'B') {
         drawStructure(grid[i][j].elem, i, j);
         if (keyIsDown(TAB)) {
           displayDirections(i, j);
@@ -152,7 +152,7 @@ function mousePressed() {
   } else if(mouseButton === LEFT && simulationHasStarted){
     let i = floor(mouseX / divisor); let j = floor(mouseY / divisor);
     //create new car if the coordinate is empty and the tile is a road tile
-    if(carMap[i][j] === undefined && grid[i][j].elem === 'R' || grid[i][j].elem === 'SV'){
+    if(carMap[i][j] === undefined && grid[i][j].elem === 'R' || grid[i][j].elem === 'SV' || grid[i][j].elem === 'SR'){
       carMap[i][j] = new Car(grid[i][j], carImgs[randomInRange(0, carImgs.length)]);
       carMap[i][j].draw();
     }
@@ -213,7 +213,8 @@ function mouseDragged() {
       assignDirection(prev, spot);    // assign direction according to the newly added route
       colorGrid(prev, 0, true);       // removes paint residue from arrows when removing connectivity (while holding tab)
       colorGrid(spot, 0, true);
-      if(isVertex(spot)){
+      //if(isVertex(spot)){
+      if(isVertex(spot) && (spot.elem !== "SR")){
         handleMerge(spot, prev);
       }
       //change the element type from R to T if the road has become a intersection
