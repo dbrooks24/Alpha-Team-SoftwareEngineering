@@ -199,6 +199,7 @@ function trafficInput(point){
     return result;
 }
 function isAnExit(point){
+  if(point.elem != "R") return false;
   let noValidDirection = true;
   for(const value of Object.values(point.direction)){
     if(value === true){

@@ -213,6 +213,9 @@ function mouseDragged() {
       assignDirection(prev, spot);    // assign direction according to the newly added route
       colorGrid(prev, 0, true);       // removes paint residue from arrows when removing connectivity (while holding tab)
       colorGrid(spot, 0, true);
+      if(isVertex(spot)){
+        handleMerge(spot, prev);
+      }
       //change the element type from R to T if the road has become a intersection
       if(spot.elem === 'T'){
         if(!IsIntersection(spot)){
@@ -227,19 +230,24 @@ function mouseDragged() {
         // spot.parentEdge = getParentEdge(prev, spot);
       }
       if(isASplittingRoad(prev) && prev.elem != "SR"){//newly created SR tile
-        prev.elem = "SR"; //splitting Road
-        handleMerge(prev, spot);
-        addVertexProperties(prev);
+        if(prev.elem != "SV"){
+          prev.elem = "SR";
+          handleMerge(prev, spot);
+          addVertexProperties(prev);
+        }else{
+          prev.elem = "SR";
+        }
+
         // prev.parentEdge = getParentEdge(prev, spot);
         // spot.parentEdge = prev.parentEdge;
         // spot.parentVertex = prev
 
       }
       
-      if(spot.elem == "SV" && prev.elem != "B"){
+      if(spot.elem == "SV" && prev.elem != "B" && prev.parentVertex != spot){
         handleMerge(spot, prev);
         removeVertexProperties(spot);
-        spot.elem == "R";
+        spot.elem = "R";
       }
       if(spot.elem == "R"){
         spot.parentVertex = prev.parentVertex;
@@ -248,8 +256,6 @@ function mouseDragged() {
       if(isVertex(prev) && !isVertex(spot)){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = getParentEdge(prev, spot);
-      }else if(isVertex(prev)){
-
       }
       if(isAnExit(spot)){
         CreateRoutesToExit  (spot);
@@ -331,7 +337,7 @@ function keyReleased() {
 function restoreLook() {
   for (let i = 0; i < cols; ++i) {
     for (let j = 0; j < rows; ++j) {
-      if (                  grid[i][j].elem !="B") {
+      if (grid[i][j].elem != "B") {
         grid[i][j].updated = false;
         colorGrid(grid[i][j], 0, true);
       } else {
