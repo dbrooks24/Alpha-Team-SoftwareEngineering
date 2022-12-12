@@ -11,7 +11,7 @@ function CreateRoutesToExit(exit){
     removeLabels(vertices);//remove all the labels that were added from createRoute()
 }
 
-//Deth-for search to get the connected directed graph
+//Deth-first search to get the connected directed graph that leeds to this exit
 function createRoute(vertex, exit, subgraph){
     if(vertex.incomingEdges == undefined) return;
     vertex.label = VISITED;
@@ -21,6 +21,7 @@ function createRoute(vertex, exit, subgraph){
         if(edge.label == UNEXPLORED){
             edge.label = VISITED;
             let oppositeVertex = edge.endVertex;
+            if(!isVertex(oppositeVertex)) continue;
             oppositeVertex.routableExits.push({exit: exit, outgoingEdge:edge.outgoingEdge});
             if(oppositeVertex.label == UNEXPLORED){
                 oppositeVertex.label = VISITED;
@@ -48,6 +49,7 @@ function removeOutgoingEdgesLabels(vertices){
     }
 
 }
+//a splitting road is a road tile that leeer
 function isASplittingRoad(point){
     if(point.elem == "T" || point == undefined)return false;//Traffic lights are not to be considered
     let isSplitting = false;    
@@ -134,6 +136,7 @@ function handleMerge(point, neighbor){
 
         if(point.routableExits == undefined) point.routableExits = [];
         let pv = point.parentVertex;
+        if(!isVertex(pv)) return;//dealing with loops
         //update outgoing edges
         let i = grid[pv.x][pv.y].outgoingEdges.findIndex(edge => edge.outgoingEdge == point.parentEdge);
         if(i != -1){
@@ -195,6 +198,7 @@ function updateRoadTileParent(point, newParentVertex, newParentEdge, oldParentVe
 //neighboring road is the road tile that lead to this Vertex
 function updateVertexEdge(currentVertex, newParentVertex, newParentEdge, oldParentVertex){
     if(oldParentVertex == undefined  || currentVertex == undefined || newParentEdge == undefined || newParentVertex == undefined) return;
+    if(currentVertex.incomingEdges == undefined)return;
     let index = currentVertex.incomingEdges.findIndex( edge => (edge.endVertex.x == oldParentVertex.x) && (edge.endVertex.y == oldParentVertex.y) && edge.outgoingEdge != undefined);
     if(index == -1) return;
     currentVertex.incomingEdges[index].endVertex = newParentVertex;
