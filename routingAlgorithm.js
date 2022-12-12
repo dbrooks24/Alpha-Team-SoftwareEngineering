@@ -116,6 +116,7 @@ function handleMerge(point, neighbor){
         let pv = point.parentVertex;//get the nearest vertex along this directed subgraph
                                             //niehgbor here is the previous road tile
         let allExits = pv.routableExits;
+        if(allExits == undefined) return;
         let routableExits = [];
         allExits.forEach(exit => {if(exit.outgoingEdge == point.parentEdge) routableExits.push(exit)})
         routableExits = routableExits.slice();
