@@ -12,6 +12,7 @@ class coordinate {
     this.aTimer = 0;
     this.parentVertex = undefined;//the traffic light that leads to this tile. It should be called on only elements of type "R"
     this.parentEdge = undefined;
+    this.distanceFromParent  = 1;
     }
   //properties to be added only to traffic light coordinates
   addTrafficLightProperties(prev){
