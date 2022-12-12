@@ -215,7 +215,6 @@ function mouseDragged() {
       colorGrid(spot, 0, true);
       //if(isVertex(spot)){
       if(isVertex(spot) && (spot.elem !== "SR")){
-        print("HERE");
         handleMerge(spot, prev);
       }
       //change the element type from R to T if the road has become a intersection
