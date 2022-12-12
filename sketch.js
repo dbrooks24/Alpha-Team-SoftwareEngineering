@@ -221,6 +221,8 @@ function mouseDragged() {
         if(!IsIntersection(spot)){
           spot.elem = 'R';
           spot.removeTrafficLightProperties();
+        }else{// get updated trafficInput
+          spot.trafficInputDirections = trafficInput(spot);
         }
       }else if(IsIntersection(spot)){
         spot.elem = 'T';
