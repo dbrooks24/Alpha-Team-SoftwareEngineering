@@ -73,11 +73,18 @@ class Car{
         let results = [];
         for(let exit of vertex.routableExits){
             if(exit.exit.x == this.assignedExit.x && exit.exit.y == this.assignedExit.y && exit.outgoingEdge != undefined){
-                results.push(exit.outgoingEdge);
+                results.push(exit);
             }
         }
         if(results.length != 0){
-            return results[getRandomInt(results.length)]
+            let min = results[0];
+            for(let i = 0; i < results.length; ++i){
+                if(results[i].distanceFromExit < min.distanceFromExit){
+                    min = results[i];
+                }
+            }
+            return  min.outgoingEdge;
+            
         }else{
             return -1;
         }

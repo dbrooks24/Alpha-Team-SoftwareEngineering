@@ -256,6 +256,7 @@ function mouseDragged() {
       if(spot.elem == "R"){
         spot.parentVertex = prev.parentVertex;
         spot.parentEdge = prev.parentEdge;
+        spot.distanceFromParent = prev.distanceFromParent + 1;
       }
       if(isVertex(prev) && !isVertex(spot)){
         spot.parentVertex = prev.parentVertex;
